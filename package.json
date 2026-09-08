@@ -1,5 +1,5 @@
 {
-  "name": "emdash-skin-wp",
+  "name": "emdash-classic-theme",
   "version": "0.1.0",
   "description": "A WordPress-looking skin for the EmDash CMS admin panel. CSS only, no core patching.",
   "keywords": [
@@ -34,5 +34,12 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "astro": "^7.3.1",
+    "typescript": "^5.9.0"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit"
   }
 }
