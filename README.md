@@ -1,5 +1,7 @@
 # emdash-classic-theme
 
+![The EmDash admin panel wearing the wp-admin look: dashboard, collection list, entry editor, media library, sections, content types and a modal](https://raw.githubusercontent.com/marks-zyz/emdash-classic-theme/main/docs/demo.gif)
+
 Gives the EmDash admin panel the look of wp-admin. It is one stylesheet, injected into the
 `<head>` of `/_emdash/admin` by a middleware. Nothing in `node_modules` is patched, no core file
 is copied, and no JavaScript runs inside the panel.

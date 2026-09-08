@@ -41,5 +41,13 @@
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marks-zyz/emdash-classic-theme.git"
+  },
+  "bugs": {
+    "url": "https://github.com/marks-zyz/emdash-classic-theme/issues"
+  },
+  "homepage": "https://github.com/marks-zyz/emdash-classic-theme#readme"
 }
