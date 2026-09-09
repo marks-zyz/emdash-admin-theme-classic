@@ -110,7 +110,9 @@ consequence you are accepting is that the theme toggle in the panel header stops
 
 | theme | tested against |
 | --- | --- |
-| 0.1.x | emdash 0.36.0, `@emdash-cms/admin` 0.36.0 |
+| 0.1.x | emdash 0.36.0 and 0.37.0, `@emdash-cms/admin` same |
+
+On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`, `.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`, `data-testid="dashboard-metric"`), and three production sites run it there.
 
 The stylesheet anchors on `data-sidebar="content-container"`, `data-sidebar="menu-button"`,
 `.emdash-sidebar` and the `#field-<slug>` ids. None of that is a public contract. It is the
