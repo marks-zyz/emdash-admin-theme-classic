@@ -923,7 +923,7 @@ html[data-mode] aside[data-side="right"] > [data-sidebar="content-container"] {
    would erase the shadow on the user list's skeleton table frame, where it's
    correct. */
 html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline,
-html[data-mode] main .overflow-x-auto.border:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
 html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]) {
   /* round 5.1 (2026-09-08, owner's preference): `border`, not `border-color`. With a 1px
      TRANSPARENT border the card's own background paints underneath it (default background-clip
@@ -944,7 +944,7 @@ html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([clas
 }
 
 html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:hover,
-html[data-mode] main .overflow-x-auto.border:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
+html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
 html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover {
   box-shadow:
     0 0 0 1px var(--wp-line),
@@ -1137,13 +1137,13 @@ html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(n+9), html
        need a guard. Look for these three lines:
 
          html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline,
-         html[data-mode] main .overflow-x-auto.border,
+         html[data-mode] main div:has(> table),
          html[data-mode] main div.border.bg-kumo-base {
 
        and swap them for:
 
          html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline,
-         html[data-mode] main .overflow-x-auto.border:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+         html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
          html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]) {
 
        and do the same on the :hover list right below (same guards, with
@@ -1551,7 +1551,7 @@ html[data-mode] section[data-sorting] > div > div > h3 {
    catch the Traducoes panel's root, which wraps the h3 AND the whole list:
    the panel would become one giant band. If EmDash removes `flex` from that row,
    Bylines loses the band (silent degradation, doesn't break). */
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+html[data-mode] section[data-sorting] > div > div:has(> h3) {
   margin: -16px -16px 16px !important;
   padding-block: 8px !important;
   padding-inline: 16px 40px !important;   /* round 5: same ruler as the loose h3 */
@@ -1559,7 +1559,7 @@ html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
   background: var(--wp-button-bg);
 }
 
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
+html[data-mode] section[data-sorting] > div > div:has(> h3) > h3 {
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -2858,7 +2858,7 @@ html[data-mode] main :where(
    don't carry "transition" in their class string.
    No `transform`: these two boxes don't lift, only the shadow changes (line 895
    is only for the card). */
-html[data-mode] main .overflow-x-auto.border:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):not([class*="transition"]),
+html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):not([class*="transition"]),
 html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):not([class*="transition"]) {
   -webkit-transition: box-shadow var(--wp-normal) var(--wp-ease);
   transition: box-shadow var(--wp-normal) var(--wp-ease);
@@ -2920,8 +2920,8 @@ html[data-mode] section[data-disclosure="true"] button[aria-expanded] {
    The block on line 1009 still applies to the entry animations and to the
    card's transform. */
 @media (prefers-reduced-motion: reduce) {
-  html[data-mode] main .overflow-x-auto.border:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
-  html[data-mode] main .overflow-x-auto.border:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
+  html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+  html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
   html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
   html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
   html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50),
@@ -3073,7 +3073,7 @@ html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
   min-height: 0 !important;
 }
 
-html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.flex:has(> h3),
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div:has(> h3),
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > h3,
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > h3 {
   padding-inline-end: 92px !important;
@@ -3107,14 +3107,14 @@ html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > 
    go back to being plain text: the height rule matches it too, and then the band would add up to 36 + 8. */
 html[data-mode] section[data-sorting] > div > h3,
 html[data-mode] section[data-sorting] > div > div > h3,
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+html[data-mode] section[data-sorting] > div > div:has(> h3) {
   display: flex !important;
   align-items: center !important;
   min-height: 36px !important;
   padding-block: 4px !important;
 }
 
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
+html[data-mode] section[data-sorting] > div > div:has(> h3) > h3 {
   display: block !important;
   min-height: 0 !important;
   padding-block: 0 !important;
@@ -3123,18 +3123,18 @@ html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
 /* band's breathing room: 38px reserves the handle, 70px reserves handle + "+" */
 html[data-mode] section[data-sorting] > div > h3,
 html[data-mode] section[data-sorting] > div > div > h3,
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+html[data-mode] section[data-sorting] > div > div:has(> h3) {
   padding-inline-end: 38px !important;
 }
 
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > h3,
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > h3,
-html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.flex:has(> h3) {
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div:has(> h3) {
   padding-inline-end: 70px !important;
 }
 
 /* the help button goes to the end of the row */
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button {
+html[data-mode] section[data-sorting] > div > div:has(> h3) > button {
   margin-inline-start: auto !important;
 }
 
@@ -3145,7 +3145,7 @@ html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
 }
 
 /* all three, same box and same hover */
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button,
+html[data-mode] section[data-sorting] > div > div:has(> h3) > button,
 html[data-mode] section[data-sorting] .absolute.end-14.top-2,
 html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
   display: grid !important;
@@ -3161,7 +3161,7 @@ html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
   transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
 }
 
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button:hover,
+html[data-mode] section[data-sorting] > div > div:has(> h3) > button:hover,
 html[data-mode] section[data-sorting] .absolute.end-14.top-2:hover,
 html[data-mode] section[data-sorting="false"] > button[data-sortable-handle]:hover {
   background: var(--wp-line-soft) !important;
