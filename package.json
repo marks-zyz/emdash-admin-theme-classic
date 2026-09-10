@@ -1,6 +1,6 @@
 {
   "name": "emdash-classic-theme",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "A WordPress-looking skin for the EmDash CMS admin panel. CSS only, no core patching.",
   "keywords": [
     "emdash",
@@ -26,6 +26,7 @@
   "files": [
     "src",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "peerDependencies": {
@@ -43,7 +44,7 @@
     "typescript": "^5.9.0"
   },
   "scripts": {
-    "test": "node --test test/skin-fixture.test.mjs",
+    "test": "node --test test/*.test.mjs",
     "typecheck": "astro sync && tsc --noEmit"
   },
   "repository": {

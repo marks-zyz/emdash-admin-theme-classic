@@ -1550,8 +1550,19 @@ html[data-mode] section[data-sorting] > div > div > h3 {
    The `flex` class is the discriminator because `div:has(> h3)` without the class would also
    catch the Traducoes panel's root, which wraps the h3 AND the whole list:
    the panel would become one giant band. If EmDash removes `flex` from that row,
-   Bylines loses the band (silent degradation, doesn't break). */
-html[data-mode] section[data-sorting] > div > div:has(> h3) {
+   Bylines loses the band (silent degradation, doesn't break).
+
+   THAT IS NOT A HYPOTHESIS ANYMORE, it shipped: 0.1.2 (commit 39ae114) dropped the
+   class from these 10 selectors as part of a Tailwind-anchor cleanup, and 0.1.4 put it
+   back. Taxonomias and Traducoes wrap the title AND the content in the same bare
+   <div>, so with block [21]'s `display: flex` on it the title went to the left, the
+   whole term list to the right, and the band vanished. MEASURED on the fixture at
+   368px: taxonomy title at x=17 with 76.1px, checkbox list starting at x=93.1 next to
+   it; correct is the title at x=1, 367 by 36px, with the list below at y=376.
+   The 0.1.2 check ran on a running panel that had no taxonomy and no translation on
+   screen, so the extra match count was zero there. test/panel-headers.test.mjs now
+   holds the four panels, and its mutant is exactly this removal. */
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
   margin: -16px -16px 16px !important;
   padding-block: 8px !important;
   padding-inline: 16px 40px !important;   /* round 5: same ruler as the loose h3 */
@@ -1559,7 +1570,7 @@ html[data-mode] section[data-sorting] > div > div:has(> h3) {
   background: var(--wp-button-bg);
 }
 
-html[data-mode] section[data-sorting] > div > div:has(> h3) > h3 {
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -3073,7 +3084,7 @@ html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
   min-height: 0 !important;
 }
 
-html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div:has(> h3),
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.flex:has(> h3),
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > h3,
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > h3 {
   padding-inline-end: 92px !important;
@@ -3099,7 +3110,13 @@ html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > 
    WHY `margin-inline-start: auto` on the (i): it's a flex child; the other two are
    `absolute`, positioned by EmDash, so it's the only piece that needs to MOVE.
    DEGRADATION: a browser without :has() only loses the extra breathing room; the buttons stay the same
-   size and with the same hover. */
+   size and with the same hover.
+
+   EVERY `div.flex:has(> h3)` IN THIS BLOCK KEEPS THE CLASS. The row it paints is the
+   Bylines header; the bare `div:has(> h3)` also matches the Taxonomias and Traducoes
+   roots, which hold the title AND the content, and `display: flex` there lays the panel
+   out in two columns. That regression shipped in 0.1.2 and is described in full in
+   block [10], next to the band rule. */
 
 /* SINGLE HEIGHT: the band is now 36px on every block, with content centered. Without this the
    28px button was pushing the header itself (measured: the Creditos band went to 45px and the
@@ -3107,14 +3124,14 @@ html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > 
    go back to being plain text: the height rule matches it too, and then the band would add up to 36 + 8. */
 html[data-mode] section[data-sorting] > div > h3,
 html[data-mode] section[data-sorting] > div > div > h3,
-html[data-mode] section[data-sorting] > div > div:has(> h3) {
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
   display: flex !important;
   align-items: center !important;
   min-height: 36px !important;
   padding-block: 4px !important;
 }
 
-html[data-mode] section[data-sorting] > div > div:has(> h3) > h3 {
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
   display: block !important;
   min-height: 0 !important;
   padding-block: 0 !important;
@@ -3123,18 +3140,18 @@ html[data-mode] section[data-sorting] > div > div:has(> h3) > h3 {
 /* band's breathing room: 38px reserves the handle, 70px reserves handle + "+" */
 html[data-mode] section[data-sorting] > div > h3,
 html[data-mode] section[data-sorting] > div > div > h3,
-html[data-mode] section[data-sorting] > div > div:has(> h3) {
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
   padding-inline-end: 38px !important;
 }
 
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > h3,
 html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > h3,
-html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div:has(> h3) {
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.flex:has(> h3) {
   padding-inline-end: 70px !important;
 }
 
 /* the help button goes to the end of the row */
-html[data-mode] section[data-sorting] > div > div:has(> h3) > button {
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button {
   margin-inline-start: auto !important;
 }
 
@@ -3145,7 +3162,7 @@ html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
 }
 
 /* all three, same box and same hover */
-html[data-mode] section[data-sorting] > div > div:has(> h3) > button,
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button,
 html[data-mode] section[data-sorting] .absolute.end-14.top-2,
 html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
   display: grid !important;
@@ -3161,7 +3178,7 @@ html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
   transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
 }
 
-html[data-mode] section[data-sorting] > div > div:has(> h3) > button:hover,
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button:hover,
 html[data-mode] section[data-sorting] .absolute.end-14.top-2:hover,
 html[data-mode] section[data-sorting="false"] > button[data-sortable-handle]:hover {
   background: var(--wp-line-soft) !important;

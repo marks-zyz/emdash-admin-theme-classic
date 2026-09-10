@@ -138,6 +138,17 @@ change has to arrive with measurements, not opinions. The numbers that matter ar
 card heights, contrast ratios and focus ring visibility, measured against the real
 `admin/dist/styles.css` served next to `skin.css`. A PR that moves one of them should say why.
 
+`npm test` runs the fixtures in `test/`, which serve that same admin stylesheet next to the skin
+and measure the result in headless Chromium. Each one carries a mutant of the skin that has to
+fail, so a fixture that stops discriminating gets caught instead of going green forever.
+
+One warning about measuring on a running panel, learned the expensive way in 0.1.2: a selector
+that matches the same elements today can still be wrong. That release swapped `div.flex:has(> h3)`
+for `div:has(> h3)` after checking the match count in a live panel, but the entry open on screen
+had no taxonomies and no translations, so the two panels that the wider selector also caught were
+not in the DOM to be counted. Those two rendered in two columns until 0.1.4. If you widen a
+selector, open the panel state the old one excluded, or add that state to a fixture.
+
 Two contrast decisions are already logged and were taken with eyes open. `--wp-line` and
 `--wp-field-line` are both `#dcdcde`, which measures 1.36:1 on white and therefore sits under the
 3:1 that WCAG 1.4.11 asks of a border. What carries accessibility instead is the `#8c8f94` hover
