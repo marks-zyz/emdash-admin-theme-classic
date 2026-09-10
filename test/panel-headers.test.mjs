@@ -9,16 +9,11 @@
 // O markup abaixo copia o que o bundle emite (medido em @emdash-cms/admin 0.37.0,
 // ContentSettingsPanel.tsx e TaxonomySidebar.tsx, identico em 0.36.0).
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { chromium } from "playwright";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const ADMIN_CSS = readFileSync(fileURLToPath(import.meta.resolve("@emdash-cms/admin/styles.css")), "utf8");
-const SKIN_CSS = readFileSync(join(ROOT, "src", "skin.css"), "utf8");
+const { ADMIN_CSS, FULL_CSS: SKIN_CSS } = await import("./stylesheet.mjs");
 // Mutacao anti-placebo: e exatamente a troca do commit 39ae114, que quebrou os dois painieis.
 const MUTANT_CSS = SKIN_CSS.replaceAll("> div.flex:has(> h3)", "> div:has(> h3)");
 

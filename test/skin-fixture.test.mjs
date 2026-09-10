@@ -1,20 +1,15 @@
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
 import { createServer } from "node:http";
-import { dirname, join } from "node:path";
-import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { chromium } from "playwright";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const ADMIN_CSS = readFileSync(fileURLToPath(import.meta.resolve("@emdash-cms/admin/styles.css")), "utf8");
-const SKIN_CSS = readFileSync(join(ROOT, "src", "skin.css"), "utf8");
+const { ADMIN_CSS, FULL_CSS: SKIN_CSS } = await import("./stylesheet.mjs");
 const MUTATION_FROM = `html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"])
   :is(a, button) {
   border-radius: 0 !important;`;
 const MUTATION_TO = MUTATION_FROM.replace("border-radius: 0", "border-radius: 4px");
 const MUTANT_CSS = SKIN_CSS.replace(MUTATION_FROM, MUTATION_TO);
-const COMMENT_CSS = SKIN_CSS.replace("skin.css  (v4)", "skin.css  (v4, comment-only probe)");
+const COMMENT_CSS = SKIN_CSS.replace("skin.css  (v4, layer 2 of 2)", "skin.css  (v4, comment-only probe)");
 
 assert.notEqual(MUTANT_CSS, SKIN_CSS, "a mutação anti-placebo precisa alcançar a regra de raio");
 assert.notEqual(COMMENT_CSS, SKIN_CSS, "a variante de comentário precisa alterar somente o texto do comentário");

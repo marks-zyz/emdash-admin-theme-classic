@@ -1,4 +1,4 @@
-export const CSS_ROUTE = "/_emdash-classic-theme/skin.css";
+export const CSS_ROUTE = "/_emdash-admin-theme-classic/skin.css";
 
 export type SkinTokens = Record<string, string>;
 

@@ -1,16 +1,15 @@
 {
-  "name": "emdash-classic-theme",
-  "version": "0.1.4",
-  "description": "A WordPress-looking skin for the EmDash CMS admin panel. CSS only, no core patching.",
+  "name": "emdash-admin-theme-classic",
+  "version": "0.2.0",
+  "description": "wp-admin look for the EmDash CMS admin panel. Two layers: design tokens on their own, or tokens plus geometry. CSS only, no core patching.",
   "keywords": [
     "emdash",
     "emdash-cms",
+    "emdash-admin-theme",
     "admin",
-    "skin",
-    "theme",
+    "admin-theme",
     "wordpress",
-    "wp-admin",
-    "astro"
+    "wp-admin"
   ],
   "license": "MIT",
   "type": "module",
@@ -19,6 +18,7 @@
     "./middleware": "./src/middleware.ts",
     "./middleware-configured": "./src/middleware-configured.ts",
     "./inject": "./src/inject.ts",
+    "./tokens.css": "./src/tokens.css",
     "./skin.css": "./src/skin.css",
     "./package.json": "./package.json",
     "./serve": "./src/serve.ts"
@@ -45,14 +45,15 @@
   },
   "scripts": {
     "test": "node --test test/*.test.mjs",
-    "typecheck": "astro sync && tsc --noEmit"
+    "typecheck": "astro sync && tsc --noEmit",
+    "surface": "node scripts/surface.mjs"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/marks-zyz/emdash-classic-theme.git"
+    "url": "git+https://github.com/marks-zyz/emdash-admin-theme-classic.git"
   },
   "bugs": {
-    "url": "https://github.com/marks-zyz/emdash-classic-theme/issues"
+    "url": "https://github.com/marks-zyz/emdash-admin-theme-classic/issues"
   },
-  "homepage": "https://github.com/marks-zyz/emdash-classic-theme#readme"
+  "homepage": "https://github.com/marks-zyz/emdash-admin-theme-classic#readme"
 }

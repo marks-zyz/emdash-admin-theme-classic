@@ -1,6 +1,6 @@
 name: regression
 
-# Roda a fixture de regressao visual da skin contra o styles.css REAL do
+# Roda as fixtures de regressao visual contra o styles.css REAL do
 # @emdash-cms/admin. Instala com bun (regra da casa; o publish.yml continua no
 # npm porque o trusted publishing do npm exige o OIDC do proprio npm).
 on:
@@ -22,4 +22,5 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bunx playwright install --with-deps chromium
       - run: bun run typecheck
+      - run: bun run surface -- --check
       - run: bun run test

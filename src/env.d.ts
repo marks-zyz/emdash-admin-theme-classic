@@ -3,7 +3,8 @@ declare module "*.css?raw" {
 	export default content;
 }
 
-declare module "virtual:emdash-classic-theme/config" {
+declare module "virtual:emdash-admin-theme-classic/config" {
 	export const tokens: Record<string, string>;
 	export const cssRoute: string;
+	export const layers: "tokens" | "full";
 }

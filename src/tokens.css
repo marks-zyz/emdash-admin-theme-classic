@@ -1,0 +1,191 @@
+/* ==========================================================================
+   tokens.css  (layer 1 of 2)
+   The supported half of this admin theme: EmDash's and Kumo's own design tokens,
+   redeclared with the WordPress palette and the wp-admin type scale. Token names
+   are a stable, documented surface, so nothing in here depends on a generated
+   class name and nothing here breaks silently on an admin release.
+
+   Ships on its own: `emdash-admin-theme-classic/tokens.css`, or `layers: "tokens"`
+   on the integration. That is the whole panel in WordPress colors and text sizes,
+   with EmDash's geometry left alone.
+
+   Layer 2 is skin.css: corners, metaboxes, the dark menu, the 32px toolbar. That
+   one has to aim at generated class names, because corners and spacing are utility
+   classes on each Kumo component, not tokens. Measure the split with `npm run surface`.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   [0] WHITE LABEL TOKENS  (change only here, per client)
+   The html:root[data-mode] selector has specificity (0,2,1): it beats EmDash's
+   "classic" theme ([data-theme="classic"]:not([data-mode="dark"]) = 0,2,0),
+   which defines several of these same tokens.
+   ========================================================================== */
+html:root[data-mode] {
+  /* FIX 1 (2026-09-07 audit): kumo's dark mode comes from light-dark() on ~130
+     tokens. Declaring color-scheme here disarms all of them at once, and it's
+     what stops the panel from mixing the skin's white surface with the dark
+     theme's light text (contrast measured at 1.28:1 on the success notice).
+     WordPress has no dark mode, so forcing light is consistent.
+     Accepted consequence: the panel's theme switcher becomes inert. */
+  color-scheme: light;
+
+  /* Status text: the skin paints the surface white, and the classic theme's
+     values (#00a32a, #dba617) would measure 3.35:1 and ~2:1. These pass AA on
+     #fff. */
+  --text-color-kumo-danger:  #b32d2e;
+  --text-color-kumo-success: #007017;
+  --text-color-kumo-warning: #996800;
+  --text-color-kumo-info:    #2271b1;
+
+  --wp-accent:   #2271b1;   /* client's accent color */
+  --wp-ink:      #1d2327;   /* toolbar and menu */
+  --wp-canvas:   #f0f0f1;   /* page background */
+  --wp-surface:  #ffffff;   /* widgets, tables, fields */
+  /* round 5 (2026-09-08, owner's request): ONE border color for everything, and
+     weaker. Section outline, widget frame, table header and field resting
+     border all now read the same #dcdcde. CONSCIOUS DECISION AGAINST WCAG:
+     #dcdcde measures 1.36:1 on white, below the 3:1 that 1.4.11 asks for on
+     component outlines. The owner was told the number and kept it ("the
+     borders are too heavy... even against contrast"). What holds
+     accessibility in place instead of the border: field hover darkens to
+     #8c8f94 (line ~722) and focus still relies on the 2px accent ring, which
+     is what the standard actually requires to be visible. */
+  --wp-line:     #dcdcde;   /* borders: section, widget, table, band */
+  --wp-field-line: #dcdcde; /* field resting border: the SAME as the section's (hover goes to #8c8f94) */
+  --wp-font:     -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+                 Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+  --wp-toolbar-h: 32px;
+  --wp-menu-w:    230px;    /* WP uses 160px; the labels here are bigger */
+  --wp-radius:    4px;      /* corner radius of widgets and buttons */
+  --wp-icon:      20px;     /* menu icons (dashicons = 20px) */
+  --wp-icon-bold: 8;        /* extra weight for Phosphor icons (0 = regular, 8 = bold) */
+
+  /* derived values: fixed fallback for browsers without color-mix (the @supports below overrides) */
+  --wp-accent-hover:    #135e96;
+  --wp-accent-deep:     #0a4b78;
+  --wp-accent-soft:     #72aee6;
+  --wp-accent-tint:     #f0f6fc;
+  --wp-accent-contrast: #ffffff;
+  --wp-ink-hover:       #2c3338;
+  --wp-ink-text:        #f0f0f1;
+  --wp-ink-icon:        rgba(240, 246, 252, .72);
+  --wp-ink-muted:       rgba(240, 246, 252, .52);
+  --wp-ink-line:        rgba(255, 255, 255, .08);
+  --wp-text:            #1d2327;
+  --wp-muted:           #646970;
+  --wp-line-soft:       #dcdcde;
+  --wp-button-bg:       #f6f7f7;
+
+  --wp-ease:      cubic-bezier(.2, .7, .2, 1);
+  --wp-ease-out:  cubic-bezier(.16, 1, .3, 1);
+  --wp-fast:      .15s;
+  --wp-normal:    .28s;
+}
+
+@supports (color: color-mix(in oklab, red 50%, white)) {
+  html:root[data-mode] {
+    --wp-accent-hover: color-mix(in oklab, var(--wp-accent) 82%, black);
+    --wp-accent-deep:  color-mix(in oklab, var(--wp-accent) 66%, black);
+    --wp-accent-soft:  color-mix(in oklab, var(--wp-accent) 52%, white);
+    --wp-accent-tint:  color-mix(in oklab, var(--wp-accent) 7%, var(--wp-surface));
+    --wp-ink-hover:    color-mix(in oklab, var(--wp-ink) 90%, white);
+    --wp-ink-text:     color-mix(in oklab, var(--wp-ink) 6%, white);
+    --wp-ink-icon:     color-mix(in oklab, var(--wp-ink-text) 72%, transparent);
+    --wp-ink-muted:    color-mix(in oklab, var(--wp-ink-text) 56%, transparent);
+    --wp-ink-line:     color-mix(in oklab, white 8%, transparent);
+    --wp-text:         var(--wp-ink);
+    --wp-muted:        color-mix(in oklab, var(--wp-ink) 66%, var(--wp-canvas));
+    /* round 5: no longer derived from --wp-line. It only feeds --color-kumo-recessed, which
+       is a BACKGROUND, not a border; with the new border (#dcdcde) the math returned
+       #eaeaeb and lightened that background without anyone asking for it. Pinned to the
+       value it always had. */
+    --wp-button-bg:    color-mix(in oklab, var(--wp-canvas) 40%, var(--wp-surface));
+  }
+}
+
+/* ==========================================================================
+   [1] BRIDGE TO THE EMDASH DESIGN SYSTEM
+   ========================================================================== */
+html:root[data-mode] {
+  /* brand and focus color: EmDash's blue becomes the client's accent color */
+  --color-kumo-brand:        var(--wp-accent);
+  --color-kumo-brand-hover:  var(--wp-accent-hover);
+  --color-kumo-focus:        var(--wp-accent);
+  --text-color-kumo-link:    var(--wp-accent);
+
+  /* surfaces */
+  --color-kumo-canvas:       var(--wp-canvas);
+  --color-kumo-elevated:     var(--wp-canvas);
+  --color-kumo-base:         var(--wp-surface);
+  --color-kumo-control:      var(--wp-surface);
+  --color-kumo-overlay:      var(--wp-surface);
+  --color-kumo-tint:         var(--wp-canvas);
+  --color-kumo-hairline:     var(--wp-line);
+  --color-kumo-line:         var(--wp-line);
+  --color-kumo-recessed:     var(--wp-line-soft);
+
+  /* text */
+  --text-color-kumo-default: var(--wp-text);
+  --text-color-kumo-subtle:  var(--wp-muted);
+
+  /* radius: WP is nearly square; 4px on widgets and buttons, 3px on fields */
+  --radius-sm:  2px;
+  --radius-md:  3px;
+  --radius-lg:  var(--wp-radius);
+  --radius-xl:  6px;
+  --radius-2xl: 8px;
+
+  /* wp-admin type scale: 13 body, 12 secondary, 23 heading */
+  --text-base: 13px;
+  --text-base--line-height: 1.5;
+  --text-sm:   12px;
+  --text-sm--line-height: 1.5;
+  --text-xs:   11px;
+  --text-2xl:  23px;
+  --text-2xl--line-height: 1.3;
+  --font-emdash: var(--wp-font);
+
+  /* EmDash's shadows also switch to the client's ink color */
+  --color-kumo-shadow-drop: rgba(29, 35, 39, .08);
+  --color-kumo-shadow-edge: rgba(29, 35, 39, .12);
+}
+
+html[data-mode] body {
+  font-family: var(--wp-font);
+}
+
+/* menu width and colors: EmDash sets this inline on the wrapper */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) {
+  --sidebar-width:     var(--wp-menu-w) !important;
+  --sidebar-bg:        var(--wp-ink) !important;
+  --sidebar-active-bg: var(--wp-accent) !important;
+}
+
+/* inside the menu, the text and line tokens switch to the dark ink ones;
+   anything in there using text-kumo-* or border-kumo-line follows on its own */
+html[data-mode] :is(aside,nav).emdash-sidebar {
+  --text-color-kumo-default: var(--wp-ink-text);
+  --text-color-kumo-strong:  var(--wp-accent-contrast);
+  --text-color-kumo-subtle:  var(--wp-ink-muted);
+  --text-color-kumo-inactive: var(--wp-ink-muted);
+  --color-kumo-line:         var(--wp-ink-line);
+  --color-kumo-hairline:     var(--wp-ink-line);
+  --color-kumo-elevated:     var(--wp-ink);
+  --color-kumo-base:         var(--wp-ink);
+  --color-kumo-fill:         var(--wp-ink-hover);
+  --color-kumo-fill-hover:   var(--wp-ink-hover);
+  color: var(--wp-ink-text);
+}
+
+/* the toolbar too */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header {
+  --text-color-kumo-default: var(--wp-ink-text);
+  --text-color-kumo-subtle:  var(--wp-ink-icon);
+  --color-kumo-elevated:     var(--wp-ink);
+  --color-kumo-base:         var(--wp-ink);
+  --color-kumo-line:         transparent;
+  --color-kumo-fill:         var(--wp-ink-hover);
+  --color-kumo-fill-hover:   var(--wp-ink-hover);
+}

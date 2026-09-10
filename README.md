@@ -1,20 +1,25 @@
-# emdash-classic-theme
+# emdash-admin-theme-classic
 
-![The EmDash admin panel wearing the wp-admin look: dashboard, collection list, entry editor, media library, sections, content types and a modal](https://raw.githubusercontent.com/marks-zyz/emdash-classic-theme/main/docs/demo.gif)
+![The EmDash admin panel wearing the wp-admin look: dashboard, collection list, entry editor, media library, sections, content types and a modal](https://raw.githubusercontent.com/marks-zyz/emdash-admin-theme-classic/main/docs/demo.gif)
 
-Gives the EmDash admin panel the look of wp-admin. It is one stylesheet, injected into the
-`<head>` of `/_emdash/admin` by a middleware. Nothing in `node_modules` is patched, no core file
-is copied, and no JavaScript runs inside the panel.
+An admin theme for EmDash: it gives the CMS panel the look of wp-admin. One stylesheet, injected
+into the `<head>` of `/_emdash/admin` by a middleware. Nothing in `node_modules` is patched, no
+core file is copied, and no JavaScript runs inside the panel.
 
 Dark sidebar `#1d2327`, active item `#2271b1`, canvas `#f0f0f1`, square corners, metabox-style
 sections in the editor. If you have used wp-admin, your eyes already know where things are.
 
-## Why the name
+## Admin theme, not theme
 
-EmDash already ships the WordPress palette, and it already calls it `classic`. Open the compiled
-`@emdash-cms/admin` stylesheet and you will find `#1d2327`, `#50575e`, `#646970`, `#f0f0f1`,
-`#2271b1` and `#d63638` declared under `[data-theme="classic"]`. That decision is made and the
-code is in your `node_modules` right now.
+In EmDash a theme is a whole Astro site with a seed file, listed under Themes in the sidebar and
+sold through a marketplace. This package touches none of that. It dresses the admin panel, which
+is why the name carries `admin` in front and why `theme` is not among its npm keywords: a bare
+`theme` would put it in front of people looking for something else entirely.
+
+`classic` is not a new word either. EmDash already ships the WordPress palette and already calls
+it `classic`. Open the compiled `@emdash-cms/admin` stylesheet and you will find `#1d2327`,
+`#50575e`, `#646970`, `#f0f0f1`, `#2271b1` and `#d63638` declared under `[data-theme="classic"]`.
+That decision is made and the code is in your `node_modules` right now.
 
 It just stops halfway. The `classic` block covers 20 of the 38 color tokens and 8 of the 16 text
 tokens, with nothing for typography and nothing for radii, so the panel keeps its rounded, airy
@@ -24,8 +29,8 @@ variant, so the selector is written `[data-theme=classic]:not([data-mode=dark])`
 stop matching the moment a visitor's system is set to dark.
 
 This package finishes that theme from the outside: the missing tokens, the typography, the square
-corners, the sidebar, the metaboxes. Hence `classic`, not some new name. The goal is for this to
-become unnecessary, and there is an open request upstream to make it so (see below).
+corners, the sidebar, the metaboxes. The goal is for it to become unnecessary, and there is an
+open request upstream to make it so (see below).
 
 ## Why you might want it
 
@@ -38,50 +43,82 @@ client who has been editing wp-admin since 2011.
 ## Install
 
 ```sh
-npm install emdash-classic-theme
+npm install emdash-admin-theme-classic
 ```
 
-Then pick one of the two ways to wire it. Both were exercised against emdash 0.36.0 on the
-Cloudflare adapter.
+Then pick one of the two ways to wire it. Both were exercised against emdash 0.36.0 and 0.37.0 on
+the Cloudflare adapter.
 
 ### As an Astro integration (recommended)
 
 ```js
 import { defineConfig } from "astro/config";
 import emdash from "emdash/astro";
-import classicTheme from "emdash-classic-theme";
+import classicAdminTheme from "emdash-admin-theme-classic";
 
 export default defineConfig({
-  integrations: [classicTheme(), emdash({ /* your config */ })],
+  integrations: [classicAdminTheme(), emdash({ /* your config */ })],
 });
 ```
 
-Put `classicTheme()` before `emdash()` so its middleware wraps the panel's response.
+Put `classicAdminTheme()` before `emdash()` so its middleware wraps the panel's response.
 
 ### Through EmDash's `middleware.outer` slot
 
 ```js
 emdash({
-  middleware: { outer: "emdash-classic-theme/middleware" },
+  middleware: { outer: "emdash-admin-theme-classic/middleware" },
 });
 ```
 
 Use this if you prefer the documented hook. Note that `outer` is a single slot: if your site
 already uses it for something else, take the integration above, or compose by hand with
-`applySkin` and `buildHead` from `emdash-classic-theme/inject`.
+`applySkin` and `buildHead` from `emdash-admin-theme-classic/inject`.
 
-The stylesheet is answered by that same middleware, at `/_emdash-classic-theme/skin.css`, with an
-ETag derived from its own bytes. Astro's `injectRoute` is deliberately not used: a route injected
-at that path never matched under the Cloudflare dev runner, and answering from the middleware also
-keeps the two install paths behaving identically.
+The stylesheet is answered by that same middleware, at
+`/_emdash-admin-theme-classic/skin.css`, with an ETag derived from its own bytes. Astro's
+`injectRoute` is deliberately not used: a route injected at that path never matched under the
+Cloudflare dev runner, and answering from the middleware also keeps the two install paths behaving
+identically.
+
+## Two layers, and you can stop at the first
+
+```js
+classicAdminTheme({ layers: "tokens" });   // palette and type scale only
+classicAdminTheme();                       // default: "full", adds the geometry
+```
+
+`src/tokens.css` redeclares EmDash's and Kumo's own design tokens. Token names are documented and
+stable, so this layer cannot break silently: worst case a new token appears and goes unpainted.
+`src/skin.css` is the other half, the geometry that tokens cannot express, and it has to aim at
+class names the build generates.
+
+Where the line falls, measured with `npm run surface` on this release:
+
+| | selectors | what it rides on |
+| --- | --- | --- |
+| named anchors | 281 | `data-*` attributes, tags, `.emdash-*`, `.kumo-*` |
+| generated classes | 109 | Tailwind utilities, no promise attached |
+
+There are 457 `!important` declarations, nearly all of them in the second layer, most fighting
+inline styles EmDash writes onto the sidebar wrapper. The count is a measurement of where the
+supported surface ends, not a style choice. `npm run surface -- --check` fails the build when
+either number grows, so reanchoring work only ever moves one way.
+
+Worth knowing if you are theming EmDash yourself: corners and spacing are more themeable than they
+look. In `@emdash-cms/admin` 0.37.0, `.rounded-md` compiles to `border-radius: var(--radius-md)`
+and `.p-4` to `padding: calc(var(--spacing) * 4)`, so redeclaring `--radius-*` retunes every
+corner in the panel and `--spacing` retunes the whole density, with no `!important` and no class
+name involved. This package already does the radii in layer 1. What genuinely has no token is
+per-element layout: the metabox bands, the dark menu, the 32px toolbar, the collapsed menu tabs.
 
 ## Changing the colors
 
 Every color, radius and dimension lives in a custom property named `--wp-*`, all of them declared
-in block `[0]` at the top of `skin.css`. Override them by name, without the prefix:
+in block `[0]` at the top of `tokens.css`. Override them by name, without the prefix:
 
 ```js
-classicTheme({
+classicAdminTheme({
   tokens: {
     accent: "#7f54b3",
     "accent-hover": "#6b46a0",
@@ -110,20 +147,21 @@ consequence you are accepting is that the theme toggle in the panel header stops
 
 | theme | tested against |
 | --- | --- |
-| 0.1.x | emdash 0.36.0 and 0.37.0, `@emdash-cms/admin` same |
+| 0.1.x, 0.2.x | emdash 0.36.0 and 0.37.0, `@emdash-cms/admin` same |
 
-On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`, `.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`, `data-testid="dashboard-metric"`), and three production sites run it there.
+On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`,
+`.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`,
+`data-testid="dashboard-metric"`), and three production sites run it there.
 
 The stylesheet anchors on `data-sidebar="content-container"`, `data-sidebar="menu-button"`,
 `.emdash-sidebar` and the `#field-<slug>` ids. None of that is a public contract. It is the
 internal DOM of Kumo, Cloudflare's design system, and it can change in any release with no warning
-and no error: the failure mode is silent and visual. There are 457 `!important` declarations in
-here for the same reason, most of them fighting inline styles that EmDash writes onto the sidebar
-wrapper.
+and no error: the failure mode is silent and visual.
 
 So pin your EmDash version, and open the panel and look at it after every bump. If the stylesheet
 fails to load or the CSP changes, the panel falls back to its normal appearance without an error.
-The risk you are taking is cosmetic, never functional.
+The risk you are taking is cosmetic, never functional. If that risk is more than you want, install
+with `layers: "tokens"`: nothing in that layer depends on a generated name.
 
 ## Contributing
 
@@ -136,11 +174,11 @@ install the tarball instead. That is also closer to what a user gets.
 Pull requests are welcome, with one condition that exists to protect everybody's panel: a visual
 change has to arrive with measurements, not opinions. The numbers that matter are popup widths,
 card heights, contrast ratios and focus ring visibility, measured against the real
-`admin/dist/styles.css` served next to `skin.css`. A PR that moves one of them should say why.
+`admin/dist/styles.css` served next to the theme. A PR that moves one of them should say why.
 
-`npm test` runs the fixtures in `test/`, which serve that same admin stylesheet next to the skin
-and measure the result in headless Chromium. Each one carries a mutant of the skin that has to
-fail, so a fixture that stops discriminating gets caught instead of going green forever.
+`npm test` runs the fixtures in `test/`, which serve that same admin stylesheet next to this one
+and measure the result in headless Chromium. Each fixture carries a mutant of the stylesheet that
+has to fail, so a fixture that stops discriminating gets caught instead of going green forever.
 
 One warning about measuring on a running panel, learned the expensive way in 0.1.2: a selector
 that matches the same elements today can still be wrong. That release swapped `div.flex:has(> h3)`
@@ -161,8 +199,14 @@ outright, with `#00a32a` measuring 3.35:1.
 The right long-term fix is two additive lines in EmDash itself: a way to pick the admin theme, and
 a way to set its default light or dark. The attribute and the CSS layer both exist already, so
 this is a switch, not a feature. It is being asked for in
-[discussion #1493](https://github.com/emdash-cms/emdash/discussions/1493). If you want this
-package to become obsolete, that thread is where to say so.
+[discussion #1493](https://github.com/emdash-cms/emdash/discussions/1493).
+
+The narrower half of that, and the one this package would benefit from tomorrow, is naming the
+parts of the admin markup so a stylesheet has something to hold on to:
+[discussion #2987](https://github.com/emdash-cms/emdash/discussions/2987). Every one of the 109
+generated-class selectors above exists because the element it paints has no name.
+
+If you want this package to become obsolete, those two threads are where to say so.
 
 ## License
 

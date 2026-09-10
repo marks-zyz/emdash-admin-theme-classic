@@ -1,5 +1,40 @@
 # Changelog
 
+## 0.2.0
+
+Renamed from `emdash-classic-theme` to `emdash-admin-theme-classic`. In EmDash a theme is a
+whole Astro site with a seed file and a marketplace behind it, so the old name pointed at the
+wrong thing. `admin` now leads the name, `theme` and `astro` are gone from the keywords, and
+`emdash-admin-theme` was added as one for tooling to filter on. The old package is deprecated on
+npm and points here.
+
+To upgrade: change the dependency name, the import, and the integration call
+(`classicTheme()` becomes `classicAdminTheme()`). The `middleware.outer` string becomes
+`emdash-admin-theme-classic/middleware`. The stylesheet route moves to
+`/_emdash-admin-theme-classic/skin.css`, which matters only if you hardcoded it.
+
+Split into two layers, and the first one can ship alone:
+
+- `src/tokens.css` redeclares EmDash and Kumo design tokens. Documented names, no generated class
+  anywhere, so it cannot break silently.
+- `src/skin.css` is the geometry that has no token behind it.
+- `classicAdminTheme({ layers: "tokens" })` serves only the first. Default stays `full`.
+- New export `emdash-admin-theme-classic/tokens.css` for direct use.
+
+New `npm run surface`: it classifies every selector in the stylesheet and reports how much of it
+rides on generated class names. This release stands at 281 selectors on named anchors, 109 on
+generated classes, and 457 `!important`. `npm run surface -- --check` fails when either number
+grows, and the CI runs it, so reanchoring work can only move in one direction.
+
+Measured while splitting the layers, and useful to anyone theming EmDash: in
+`@emdash-cms/admin` 0.37.0 `.rounded-md` compiles to `border-radius: var(--radius-md)` and `.p-4`
+to `padding: calc(var(--spacing) * 4)`. Corners and density are reachable by token after all,
+without touching a class name. The radii are already retuned in layer 1.
+
+Also new: `test/layers.test.mjs` measures that the token layer paints the panel (surface `#ffffff`,
+`--text-base` 13px, radius 3px) without pulling in the geometry, and that the full sheet is what
+takes the menu corner to zero.
+
 ## 0.1.4
 
 Fixed the Taxonomies and Translations panels in the entry editor. Their title had jumped
