@@ -36,11 +36,15 @@
     "node": ">=20"
   },
   "devDependencies": {
+    "@emdash-cms/admin": "0.37.0",
     "astro": "^7.3.1",
+    "emdash": "0.37.0",
+    "playwright": "1.61.1",
     "typescript": "^5.9.0"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "test": "node --test test/skin-fixture.test.mjs",
+    "typecheck": "astro sync && tsc --noEmit"
   },
   "repository": {
     "type": "git",
