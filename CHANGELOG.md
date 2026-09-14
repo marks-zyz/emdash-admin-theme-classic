@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.2.1
+
+Fix: the Media Library grid thumbnail rendered narrower than its card (measured live on
+rkadvogadosimo.com.br, 206px of image inside a 230px card). The "widgets = .postbox" block
+in `skin.css` targets any `.bg-kumo-elevated.ring-kumo-hairline` element in `main` and gives
+its first child `padding: 0 12px !important`, meant for a widget's header bar. The Media
+Library grid card shares that exact class pair for an unrelated reason (it is the same
+elevated-surface token combo), and its first child is the `aspect-video p-0` image frame the
+admin itself ships edge-to-edge on purpose. The postbox rule now excludes `.group` cards
+(`:not(.group)`), because no real Dashboard widget is clickable or carries that class, only
+the media card does. Covered by a new fixture test with its own anti-placebo mutant.
+
 ## 0.2.0
 
 Renamed from `emdash-classic-theme` to `emdash-admin-theme-classic`. In EmDash a theme is a

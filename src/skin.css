@@ -601,7 +601,19 @@ html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline {
   transition: box-shadow var(--wp-normal) var(--wp-ease), transform var(--wp-normal) var(--wp-ease);
 }
 
-html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:first-child {
+/* round 6 (2026-09-14, measured live on rkadvogadosimo /admin/media): `.group` is the
+   discriminator between a real .postbox widget (a static DIV, header + body, e.g.
+   Dashboard's Content / Recent Activity) and an unrelated card that happens to share the
+   same two utility classes. The Media Library grid item is exactly that: same
+   bg-kumo-elevated + ring-kumo-hairline surface, but it is a clickable card
+   (`group ... hover:ring-kumo-brand/50 focus-visible:ring-2`), and its first child is an
+   `aspect-video` image wrapper the admin itself ships with `p-0` so the thumbnail bleeds
+   edge to edge. The header rule below overrode that with `padding: 0 12px !important`,
+   so every thumbnail rendered ~24px narrower than its card (206px content in a 230px
+   card, confirmed via getComputedStyle). No .postbox is ever a `.group` card, so this
+   guard costs nothing on the Dashboard and fixes the Media Library without a new
+   selector to maintain. */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child {
   margin: 0 !important;
   padding: 0 12px !important;
   min-height: 36px !important;
@@ -610,8 +622,8 @@ html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:first-child {
   color: var(--wp-text) !important;
 }
 
-html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:first-child h2,
-html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:first-child h3 {
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child h2,
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child h3 {
   margin: 0 !important;
   padding: 0 !important;
   font-size: 14px !important;
@@ -619,8 +631,8 @@ html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:first-child h3 {
   line-height: 1.4 !important;
 }
 
-html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > .ring-kumo-fill,
-html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:not(:first-child) {
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > .ring-kumo-fill,
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:not(:first-child) {
   --tw-ring-color: transparent;      /* removes the inner frame, the Tailwind way */
   margin: 0 !important;
   padding: 12px !important;

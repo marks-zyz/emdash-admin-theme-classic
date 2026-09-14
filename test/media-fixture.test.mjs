@@ -41,11 +41,54 @@ assert.notEqual(HOVER_LIFT_TO, HOVER_LIFT_FROM, "a mutacao anti-placebo precisa 
 const MUTANT_CSS = SKIN_CSS.replace(HOVER_LIFT_FROM, HOVER_LIFT_TO);
 assert.notEqual(MUTANT_CSS, SKIN_CSS, "a mutacao anti-placebo precisa alcancar o skin.css real");
 
+// Mutante 2 (round 6, 2026-09-14): tira o `:not(.group)` da regra de cabecalho do
+// .postbox. Sem o guarda, a mesma classe bg-kumo-elevated+ring-kumo-hairline que o
+// cartao de midia usa cai na regra "widgets = .postbox" (linha ~604) e o primeiro
+// filho (a moldura aspect-video, que o admin ja manda com `p-0` de proposito, pra
+// miniatura encostar na borda) ganha `padding: 0 12px !important`. Medido ao vivo em
+// rkadvogadosimo.com.br/_emdash/admin/media: a imagem renderizava 206px dentro de um
+// cartao de 230px, 24px sumidos pro padding errado. O guarda existe porque so o
+// cartao de midia (button, `.group`, hover:ring) tem essa forma; nenhum .postbox
+// real (Dashboard) e clicavel nem carrega `.group`.
+const PADDING_LEAK_FROM = "html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child {";
+const PADDING_LEAK_TO = "html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > div:first-child {";
+assert.ok(SKIN_CSS.includes(PADDING_LEAK_FROM), "o guarda :not(.group) da regra de cabecalho do .postbox sumiu do skin.css");
+const PADDING_LEAK_MUTANT_CSS = SKIN_CSS.replace(PADDING_LEAK_FROM, PADDING_LEAK_TO);
+assert.notEqual(PADDING_LEAK_MUTANT_CSS, SKIN_CSS, "a mutacao anti-placebo do padding precisa alcancar o skin.css real");
+
 // --- Classes reais do LayerCard "layered", lidas de layer-card.tsx (mesmas do
 // dashboard-fixture: a estrutura root/Secondary/Primary nao muda por tela) ---
 const ROOT_CLASSES = "flex w-full flex-col overflow-hidden rounded-lg bg-kumo-elevated text-base ring ring-kumo-hairline";
 const PRIMARY_CLASSES = "relative flex flex-col gap-2 overflow-hidden rounded-lg bg-kumo-base p-4 pr-3 text-inherit no-underline ring ring-kumo-fill";
 const SECONDARY_CLASSES = "-my-2 flex items-center gap-2 bg-kumo-elevated p-4 text-base font-medium text-kumo-subtle";
+
+// round 6 (2026-09-14): o ramo COM preview visual (imagem real, hasVisualPreview=true)
+// nao reaproveita PRIMARY_CLASSES: PRIMARY_CLASSES carrega `p-4 pr-3`, que so faz
+// sentido no ramo sem preview (o icone generico do arquivo precisa de respiro pra nao
+// encostar na borda). No ramo com imagem, o componente troca isso por `p-0` puro (sem
+// ghost class de p-4/pr-3), porque tailwind-merge/clsx resolve o conflito ANTES do
+// className chegar no DOM. Confirmado ao vivo em
+// rkadvogadosimo.com.br/_emdash/admin/media via getComputedStyle: o pai do <img> real
+// so carrega "... ring ring-kumo-fill aspect-video p-0", sem p-4 nem pr-3 nenhum.
+// Concatenar PRIMARY_CLASSES + "aspect-video p-0" cru (sem merge) deixa a ghost class
+// p-4 na string e o teste passa a medir um DOM que a aplicacao real nunca produz.
+const THUMB_FRAME_CLASSES = "relative flex flex-col gap-2 overflow-hidden rounded-lg bg-kumo-base text-inherit no-underline ring ring-kumo-fill aspect-video p-0";
+// gif 1x1 transparente: evita depender de rede/imagem real, mas ainda e um <img> de
+// verdade (naturalWidth/naturalHeight resolvem), como no bundle.
+const PIXEL_GIF = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBTAA7";
+
+function mediaCardWithPreview(filename, alt) {
+  return `
+  <button type="button" data-testid="media-card" data-media-layout="grid"
+    class="group relative w-full min-w-0 text-start focus-visible:ring-2 focus-visible:ring-kumo-brand hover:ring-kumo-brand/50 ${ROOT_CLASSES}">
+    <div class="${THUMB_FRAME_CLASSES}">
+      <img alt="${alt}" draggable="false" class="emdash-media-transparency-grid h-full w-full object-cover" src="${PIXEL_GIF}">
+    </div>
+    <div class="${SECONDARY_CLASSES} my-0 min-w-0 justify-between px-3 py-2.5 text-sm text-kumo-default">
+      <span dir="auto" title="${filename}" class="min-w-0 flex-1 truncate font-medium leading-5">${filename}</span>
+    </div>
+  </button>`;
+}
 
 // MediaBrowserItem, layout grid (MediaBrowserItems.tsx:133-168), item nao selecionado,
 // sem preview visual (o ramo do "document" generico: div.flex com o icone do tipo).
@@ -134,6 +177,38 @@ async function measure(page, base, skinRoute) {
   return { before, after };
 }
 
+// round 6 (2026-09-14): pagina isolada com o ramo COM preview (mediaCardWithPreview),
+// separada de `html()` porque aquela serve o ramo do icone (mediaCard/PRIMARY_CLASSES)
+// que o teste de sombra/hover ja confia; misturar os dois arriscava o teste existente.
+const htmlPreview = (skinRoute) => `<!doctype html>
+<html data-theme="classic" data-mode="light">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="/admin.css">
+    <link rel="stylesheet" href="${skinRoute}">
+  </head>
+  <body>
+    <main>
+      <div class="space-y-6">
+        <div class="grid grid-cols-4 gap-4" style="width:900px">
+          ${mediaCardWithPreview("advogada-raissa-simao.webp", "Advogada responsavel")}
+        </div>
+      </div>
+    </main>
+  </body>
+</html>`;
+
+// mede so a moldura da miniatura (primeiro filho do cartao), sem hover: o teste do
+// padding nao precisa da parte de sombra/transform, que ja e coberta acima.
+async function measureThumbFrame(page, base, skinRoute) {
+  await page.goto(`${base}/?skin=${encodeURIComponent(skinRoute)}`, { waitUntil: "networkidle" });
+  const card = page.locator('[data-testid="media-card"]').first();
+  return card.locator("> div").first().evaluate((el) => {
+    const s = getComputedStyle(el);
+    return { paddingLeft: s.paddingLeft, paddingRight: s.paddingRight, width: el.getBoundingClientRect().width };
+  });
+}
+
 // extrai o deslocamento vertical (componente "f") de um transform resolvido como
 // matrix(a, b, c, d, e, f), ou 0 quando o navegador devolve "none".
 function translateY(transform) {
@@ -166,4 +241,40 @@ test("biblioteca de midia: o item da grade ganha o cartao do bloco [7] e sobe no
   // (a lista compartilhada ainda casa) mas para de subir: so essa parte reprova.
   const mutant = await measure(page, base, "/skin-mutant.css");
   assert.throws(() => validate(mutant), /subir 1px/, "a mutacao do lift do bloco [7] tem que reprovar a fixture");
+});
+
+test("biblioteca de midia: a moldura da miniatura (ramo com preview) nao herda o padding do cabecalho do .postbox", async (t) => {
+  const browser = await chromium.launch({ headless: true });
+  t.after(() => browser.close());
+  const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+
+  // um servidor so, dois arquivos de skin: o real e o mutante do vazamento de padding.
+  // htmlPreview ignora o skin da query string e sempre carrega "/skin-real.css" ou
+  // "/skin-leaked.css" pelo path pedido, entao os dois convivem sem precisar de duas portas.
+  const server = createServer((req, res) => {
+    if (req.url === "/admin.css") return reply(res, "text/css; charset=utf-8", ADMIN_CSS);
+    if (req.url === "/skin-real.css") return reply(res, "text/css; charset=utf-8", SKIN_CSS);
+    if (req.url === "/skin-leaked.css") return reply(res, "text/css; charset=utf-8", PADDING_LEAK_MUTANT_CSS);
+    const skin = new URL(req.url, "http://fixture").searchParams.get("skin") || "/skin-real.css";
+    return reply(res, "text/html; charset=utf-8", htmlPreview(skin));
+  });
+  await new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", resolve);
+  });
+  t.after(() => new Promise((resolve) => server.close(resolve)));
+  const base = `http://127.0.0.1:${server.address().port}`;
+
+  // com o skin real, a moldura encosta na borda dos dois lados.
+  const real = await measureThumbFrame(page, base, "/skin-real.css");
+  assert.equal(real.paddingLeft, "0px", `skin real: a moldura da miniatura devia estar sem padding-left, veio "${real.paddingLeft}"`);
+  assert.equal(real.paddingRight, "0px", `skin real: a moldura da miniatura devia estar sem padding-right, veio "${real.paddingRight}"`);
+
+  // sem o guarda `:not(.group)` (mutacao anti-placebo), a regra do cabecalho do
+  // .postbox volta a vazar pra dentro do cartao de midia: 12px de padding de cada
+  // lado, a mesma quebra medida ao vivo em rkadvogadosimo.com.br/_emdash/admin/media
+  // (imagem de 206px dentro de um cartao de 230px).
+  const leaked = await measureThumbFrame(page, base, "/skin-leaked.css");
+  assert.equal(leaked.paddingLeft, "12px", `mutacao do padding: esperava o vazamento de volta (12px), veio "${leaked.paddingLeft}" — a fixture nao esta medindo o guarda de verdade`);
+  assert.equal(leaked.paddingRight, "12px", `mutacao do padding: esperava o vazamento de volta (12px), veio "${leaked.paddingRight}" — a fixture nao esta medindo o guarda de verdade`);
 });

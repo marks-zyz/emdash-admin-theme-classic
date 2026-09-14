@@ -1,6 +1,6 @@
 {
   "name": "emdash-admin-theme-classic",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "wp-admin look for the EmDash CMS admin panel. Two layers: design tokens on their own, or tokens plus geometry. CSS only, no core patching.",
   "keywords": [
     "emdash",
