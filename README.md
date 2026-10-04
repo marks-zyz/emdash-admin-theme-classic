@@ -147,7 +147,8 @@ consequence you are accepting is that the theme toggle in the panel header stops
 
 | theme | tested against |
 | --- | --- |
-| 0.1.x, 0.2.x | emdash 0.36.0 and 0.37.0, `@emdash-cms/admin` same |
+| 0.1.x, 0.2.0, 0.2.1 | emdash 0.36.0 and 0.37.0, `@emdash-cms/admin` same |
+| 0.2.2 | emdash 0.36.0 to 1.1.0, `@emdash-cms/admin` same (fixtures run against 1.1.0) |
 
 On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`,
 `.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`,

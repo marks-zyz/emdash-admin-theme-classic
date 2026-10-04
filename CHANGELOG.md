@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.2.2
+
+Compatibility: peer range widened to `emdash >=0.36.0 <1.2.0`. Measured against
+`@emdash-cms/admin` 1.1.0 (`@cloudflare/kumo` still 2.6.0): the 8 headless-Chromium fixtures
+pass against the real 1.1.0 stylesheet, `typecheck` passes, and every anchor the skin uses
+(`.emdash-sidebar` className, `data-sidebar`, `data-sorting`, `data-disclosure`,
+`data-testid="content-trash-actions"`, `data-emdash-inline-bubble-menu`) is still emitted.
+The new Calendar sidebar item and the `footerLabel` default ("EmDash") need no rule. No CSS
+change.
+
 ## 0.2.1
 
 Fix: the Media Library grid thumbnail rendered narrower than its card (measured live on
