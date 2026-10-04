@@ -608,7 +608,7 @@ html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline {
    bg-kumo-elevated + ring-kumo-hairline surface, but it is a clickable card
    (`group ... hover:ring-kumo-brand/50 focus-visible:ring-2`), and its first child is an
    `aspect-video` image wrapper the admin itself ships with `p-0` so the thumbnail bleeds
-   edge to edge. The header rule below overrode that with `padding: 0 12px !important`,
+   edge to edge. The header rule below overrode that with a forced `padding: 0 12px`,
    so every thumbnail rendered ~24px narrower than its card (206px content in a 230px
    card, confirmed via getComputedStyle). No .postbox is ever a `.group` card, so this
    guard costs nothing on the Dashboard and fixes the Media Library without a new
