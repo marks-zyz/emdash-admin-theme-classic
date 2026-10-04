@@ -1,5 +1,71 @@
 # Changelog
 
+## 0.2.3
+
+Measured on a site generated from scratch with EmDash 1.1.0, in `astro dev`, at 1440 and 390
+pixels wide, on 32 admin screens, with the 0.2.2 stylesheet and this one served to the same
+copy. Nothing got wider, nothing new overlaps, and the screens without a finding kept their
+measurements except for the type scale changes listed below.
+
+Fix: in `astro dev`, the site's own CSS no longer reaches the admin. Astro dev writes the CSS of
+every page in the project into the admin `<head>` (emdash-cms/emdash#3714, withastro/astro#18060),
+each stylesheet twice: a `<style data-vite-dev-id>` and a `<script type="module" src="/src/...">`
+that has the Vite client inject it again. On a real site that put 14 of its stylesheets in the
+admin DOM and set the page titles in Georgia. `applySkin` now removes both halves of each pair
+whose module lives under the site's `/src/`. The admin's own CSS, under `node_modules`, stays, and
+production HTML, which carries no `data-vite-dev-id`, passes through byte for byte. Removing only
+the `<style>` is not enough: with the script left in, the DOM went back to 14. Covered by
+`test/inject.test.mjs` with four mutants, one per way the pairing can go wrong (the script kept,
+the admin sheet dropped, the `&amp;` in Astro's style id left unescaped, and a nested `src/lib/src/`
+sheet paired by suffix with a shorter `/src/` one).
+
+Fix: one look for the page header action. EmDash 1.1.0 rebuilt the page headers, and the same
+"New/Create/Add" action came out three ways: the WordPress outline button where the skin reached
+it, a neutral 36px button where it did not (Menus, Users, Content types, the Bylines schema link),
+and solid blue with white text on Kumo's `primary` variant (New redirect, New section, New byline).
+The four new header shapes join the `.page-title-action` rules in blocks [5] and [13]. The primary
+variant needed two more things, because Kumo paints it from inside `@layer utilities` and an
+`!important` inside a layer beats one outside: `--color-white` is redeclared on the button, the
+same way out the skin already takes for `!text-kumo-default`, and its gradient
+`<span aria-hidden="true">` is hidden. After: every header action on those screens is 30px tall,
+1px `#2271b1` border, `#2271b1` text, 13px/400.
+
+Fix: below 640px the page header stacks instead of squeezing. On Redirects the title no longer
+runs under the button (837 square pixels of overlap before), and the actions of Categories and
+Content types wrap instead of running out of `main` (to x=493 and x=409 in a 390 viewport). A table
+whose only row is the state cell takes its wrapper's width, so the empty Byline schema message is
+no longer cut on the right (363px of content in a 340px wrapper before).
+
+Type scale, in `tokens.css`:
+
+- `--text-3xl` is 23px. Plugin pages (Forms, AI Search) title with `text-3xl` and came out at 30px
+  next to 23px on every native screen. The class is also on the Dashboard metric number, which
+  block [5] sizes on its own and stays 24px.
+- `body` takes `--text-base` (13px). Text with no size class of its own, like a plugin's subtitle,
+  the WordPress import descriptions, the Categories listing and the field names of a content type,
+  was 16px.
+- A box title with no size class (`main h2`, `main h3`) is 14px, the wp-admin metabox title. It
+  sits in `@layer base`, so any size class EmDash puts on a heading still wins over it (the Block
+  Kit `text-xl` header keeps its 20px).
+- `--text-xs` goes from 11px to 12px. List filters, the editor panel buttons, calendar days and
+  empty-state hints were one point below EmDash's own default. In the editor's side panel two long
+  buttons ("Despublicar Pergunta frequente") now take a row each, as they do in the stock admin.
+
+Fix: the Dashboard metric number lines up with its card title again. It kept the `px-3` that the
+title lost in block [5] (title text at x=267, number at x=279).
+
+Not changed, on purpose: the Media empty-state button and the action buttons inside cards
+(dressing them as header actions is a design call this release does not make), the Block Kit `h2`
+of plugin status pages (20px/700, the admin's own class), and the 390px cuts that also happen with
+the stylesheet off (Plugins cards, the WordPress import URL row, list tables), which belong
+upstream.
+
+New fixtures, each with mutants that have to fail: `test/header-actions-fixture.test.mjs` (the five
+header shapes, two guards that must not change, and the three 390px rules) and
+`test/type-scale-fixture.test.mjs`. `test/dashboard-fixture.test.mjs` gains the metric alignment.
+`npm run surface`: 109 generated-class selectors and 457 `!important`, both unchanged; every new
+selector rides on tags and attributes, so named anchors go from 281 to 344.
+
 ## 0.2.2
 
 Compatibility: peer range widened to `emdash >=0.36.0 <1.2.0`. Measured against

@@ -137,14 +137,22 @@ html:root[data-mode] {
   --radius-xl:  6px;
   --radius-2xl: 8px;
 
-  /* wp-admin type scale: 13 body, 12 secondary, 23 heading */
+  /* wp-admin type scale: 13 body, 12 secondary, 23 heading.
+     0.2.3: --text-xs goes from 11px to 12px, the floor wp-admin uses for text. At 11px
+     the list filters, the editor panel buttons and the empty-state hints read one point
+     below EmDash's own default (12px), so the skin made them smaller than stock.
+     --text-3xl folds into the heading size: plugin pages (Forms, AI Search) title
+     with `text-3xl`, and came out at 30px next to 23px on every native screen. In the
+     admin bundle the class is also on the dashboard metric number, which [5] sizes on its own. */
   --text-base: 13px;
   --text-base--line-height: 1.5;
   --text-sm:   12px;
   --text-sm--line-height: 1.5;
-  --text-xs:   11px;
+  --text-xs:   12px;
   --text-2xl:  23px;
   --text-2xl--line-height: 1.3;
+  --text-3xl:  23px;
+  --text-3xl--line-height: 1.3;
   --font-emdash: var(--wp-font);
 
   /* EmDash's shadows also switch to the client's ink color */
@@ -152,8 +160,23 @@ html:root[data-mode] {
   --color-kumo-shadow-edge: rgba(29, 35, 39, .12);
 }
 
+/* 0.2.3: the size too. Text with no size class of its own (a plugin's subtitle, the import
+   screen's descriptions, the <div> listing of Categorias) inherited the browser's 16px,
+   so --text-base never reached it. wp-admin's body is 13px. */
 html[data-mode] body {
   font-family: var(--wp-font);
+  font-size: var(--text-base);
+}
+
+/* A box title with no size class (Configuracoes and Campos on a content type, a plugin's
+   name on its card) would follow the body down to 13px; wp-admin titles a box at 14px.
+   In @layer base, next to Tailwind's own heading reset, so every size class EmDash does
+   put on a heading still wins over it. */
+@layer base {
+  html[data-mode] main :is(h2, h3) {
+    font-size: 14px;
+    line-height: 1.4;
+  }
 }
 
 /* menu width and colors: EmDash sets this inline on the wrapper */

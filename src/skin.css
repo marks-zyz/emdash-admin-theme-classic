@@ -475,8 +475,12 @@ html[data-mode] main h1 + div > button {
   transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, transform var(--wp-fast) ease;
 }
 
+/* 0.2.3: the last three lines are the header shapes EmDash 1.1.0 added (see [23]) */
 html[data-mode] main > div > div:has(> div > h1) > a,
-html[data-mode] main > div > div:has(> div > h1) > button {
+html[data-mode] main > div > div:has(> div > h1) > button,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button),
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button),
+html[data-mode] main > div > div:has(> h1) > :is(a, button) {
   height: 30px !important;
   min-height: 0 !important;
   padding: 0 10px !important;
@@ -507,7 +511,10 @@ html[data-mode] main h1 + div > button:hover {
 }
 
 html[data-mode] main > div > div:has(> div > h1) > a:hover,
-html[data-mode] main > div > div:has(> div > h1) > button:hover {
+html[data-mode] main > div > div:has(> div > h1) > button:hover,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):hover,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):hover,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):hover {
   background: var(--wp-surface) !important;
   border-color: var(--wp-accent-deep) !important;
   color: var(--wp-accent-deep) !important;
@@ -524,7 +531,10 @@ html[data-mode] main h1 + div > button:active {
 }
 
 html[data-mode] main > div > div:has(> div > h1) > a:active,
-html[data-mode] main > div > div:has(> div > h1) > button:active {
+html[data-mode] main > div > div:has(> div > h1) > button:active,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):active,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):active,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):active {
   -webkit-transform: translateY(0);
   transform: translateY(0);
   box-shadow: none !important;
@@ -547,13 +557,19 @@ html[data-mode] main h1 + div > button:focus-visible {
 }
 
 html[data-mode] main > div > div:has(> div > h1) > a:focus-visible,
-html[data-mode] main > div > div:has(> div > h1) > button:focus-visible {
+html[data-mode] main > div > div:has(> div > h1) > button:focus-visible,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):focus-visible,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):focus-visible,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):focus-visible {
   outline: 2px solid var(--wp-accent-deep) !important;
   outline-offset: 2px !important;
 }
 
 html[data-mode] main > div > div:has(> div > h1) > a svg,
-html[data-mode] main > div > div:has(> div > h1) > button svg {
+html[data-mode] main > div > div:has(> div > h1) > button svg,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button) svg,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button) svg,
+html[data-mode] main > div > div:has(> h1) > :is(a, button) svg {
   width: 14px !important;
   height: 14px !important;
 }
@@ -1629,25 +1645,39 @@ html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50) > .
        it will get dressed as .page-title-action. Visual failure, doesn't break.
    ========================================================================== */
 
-/* (a) the two families that already exist: the text color goes through the token */
+/* (a) the two families that already exist: the text color goes through the token.
+   0.2.3: `--color-white` too. The `primary` variant (Novo redirecionamento, New section,
+   New byline in 1.1.0) paints its text with `!text-white`, which compiles to
+   an important `color: var(--color-white)` inside @layer utilities: same cascade problem,
+   same way out. Scoped to the button, so nothing else in the panel loses its white. */
 html[data-mode] main h1 + div > a,
 html[data-mode] main h1 + div > button {
   --text-color-kumo-default: var(--wp-accent);
+  --color-white: var(--wp-accent);
 }
 
 html[data-mode] main > div > div:has(> div > h1) > a,
-html[data-mode] main > div > div:has(> div > h1) > button {
+html[data-mode] main > div > div:has(> div > h1) > button,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button),
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button),
+html[data-mode] main > div > div:has(> h1) > :is(a, button) {
   --text-color-kumo-default: var(--wp-accent);
+  --color-white: var(--wp-accent);
 }
 
 html[data-mode] main h1 + div > a:hover,
 html[data-mode] main h1 + div > button:hover {
   --text-color-kumo-default: var(--wp-accent-deep);
+  --color-white: var(--wp-accent-deep);
 }
 
 html[data-mode] main > div > div:has(> div > h1) > a:hover,
-html[data-mode] main > div > div:has(> div > h1) > button:hover {
+html[data-mode] main > div > div:has(> div > h1) > button:hover,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):hover,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):hover,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):hover {
   --text-color-kumo-default: var(--wp-accent-deep);
+  --color-white: var(--wp-accent-deep);
 }
 
 /* (b) the missing family: action inside the grouping wrapper, on the row WITH a subtitle.
@@ -1655,9 +1685,12 @@ html[data-mode] main > div > div:has(> div > h1) > button:hover {
    dresses every action as .page-title-action.
    Contrast checked: #2271b1 on #f6f7f7 = 4.80:1, passes AA for normal
    13px text, and it's the same pair the panel already uses on the other nine screens.
-   Touch target: 30px tall, above the gate's 24px. */
+   Touch target: 30px tall, above the gate's 24px.
+   0.2.3: the last selector of each rule is Tipos de conteudo in EmDash 1.1.0, which wraps the
+   whole page in one more div (main > div.space-y-6 > div.space-y-4 > row). See [23]. */
 html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a,
-html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button {
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button) {
   --text-color-kumo-default: var(--wp-accent);
   height: 30px !important;
   min-height: 0 !important;
@@ -1677,7 +1710,8 @@ html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button {
 }
 
 html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a:hover,
-html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:hover {
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:hover,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button):hover {
   --text-color-kumo-default: var(--wp-accent-deep);
   background: var(--wp-surface) !important;
   border-color: var(--wp-accent-deep) !important;
@@ -1688,7 +1722,8 @@ html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:ho
 }
 
 html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a:active,
-html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:active {
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:active,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button):active {
   -webkit-transform: translateY(0);
   transform: translateY(0);
   box-shadow: none !important;
@@ -1698,13 +1733,15 @@ html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:ac
    rule the focus ring dies. Same FIX 7 already applied to the other two
    families (lines 694 and 700). */
 html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a:focus-visible,
-html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:focus-visible {
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:focus-visible,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button):focus-visible {
   outline: 2px solid var(--wp-accent-deep) !important;
   outline-offset: 2px !important;
 }
 
 html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a svg,
-html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button svg {
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button svg,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button) svg {
   width: 14px !important;
   height: 14px !important;
 }
@@ -3045,3 +3082,86 @@ html[data-mode] section[data-sorting="false"] > button[data-sortable-handle]:hov
    leaving an armed bomb behind. Do not resurrect this block: if one of these fields reappears in the
    form, it's because it came back to the schema, and the fix belongs in the schema.
    ========================================================================== */
+
+
+/* ==========================================================================
+   [23] EMDASH 1.1.0 SHAPES (0.2.3)
+
+   Measured in astro dev on a copy of a real site, EmDash 1.1.0, at 1440 and 390.
+   1.1.0 rebuilt several page headers, and four of them fell out of reach of [5] and [13]:
+
+     Secoes          main > div > header > div > [div > h1, button]
+     Menus, Creditos main > div > header > [div > h1, div > (a, button)]
+     Usuarios        main > div > div > [h1, button]
+     Tipos de conteudo  one more div around the whole page (main > div > div > row)
+
+   The fix for those lives in [5] and [13], as extra selectors on the rules that already
+   dress the header action, so they share one declaration block. What is left for here:
+
+   (a) THE PRIMARY VARIANT'S GRADIENT. Novo redirecionamento, New section and New byline
+       are kumo `primary`: a <span aria-hidden="true" class="absolute inset-0 ..."> paints
+       a blue gradient over the button, on top of the background [5] sets. Measured before:
+       h30, the WordPress border, but the face still blue with white text. The span is the
+       only aria-hidden child kumo gives a button, and the icon is an <svg>, so the
+       attribute is the anchor. Unlayered, so it beats the layered utilities without help.
+
+   (b) 390px. Below 640px the 1.1.0 header leaves its actions on the same line as the title:
+       Redirecionamentos overlaps the h1 with its button (837px2 measured), Categorias
+       pushes four buttons to x=493 inside a 390 viewport, Tipos de conteudo to 409. Only the
+       row's wrapping changes, never a size.
+
+   (c) EMPTY TABLE ON A PHONE. A table whose only row is a state cell (td[colspan], the
+       empty or loading message) keeps the min-width of its columns: on Esquema de creditos
+       at 390 the message ended at x=374 inside a 340px wrapper, cut on the right. With no
+       data row there is nothing to keep wide, so the table takes the wrapper's width.
+
+   (d) DASHBOARD METRIC NUMBER. [5] zeroes the card title's padding, but the number keeps
+       its own `px-3`: title at x=267, number at x=279. Anchored on data-testid.
+   ========================================================================== */
+
+/* (a) */
+html[data-mode] main h1 + div > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > div:has(> div > h1) > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > div:has(> h1) > :is(a, button) > span[aria-hidden="true"] {
+  display: none;
+}
+
+/* (b) */
+@media (max-width: 640px) {
+  html[data-mode] main > div > header > div:has(> h1 + div > :is(a, button)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-mode] main > div > header > div:has(> h1 + div > :is(a, button)) > * {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  html[data-mode] main > div > div:has(> div > h1),
+  html[data-mode] main > div > div > div:has(> div > h1),
+  html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)),
+  html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+}
+
+/* (c) */
+@media (max-width: 640px) {
+  html[data-mode] main table:has(> tbody > tr > td[colspan]:only-child) {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  html[data-mode] main table:has(> tbody > tr > td[colspan]:only-child) th {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* (d) */
+html[data-mode] main [data-testid="dashboard-metric-value"] {
+  padding-inline: 0;
+}

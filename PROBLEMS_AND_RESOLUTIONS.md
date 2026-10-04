@@ -31,3 +31,22 @@ Log de pitfall e solucao deste pacote. Uma entrada por problema, com o numero me
 - Causa: o dev runner da Cloudflare recusa ler arquivo fora da raiz do projeto, e o
   symlink coloca a folha la fora. A mensagem nao cita o symlink.
 - Resolucao: `npm pack` e instalar o tarball.
+
+## CSS do site dentro do admin, so em astro dev (0.2.3)
+
+- Sintoma: em `astro dev` o h1 do painel sai em Georgia, h2 com 38px e h3 com 28px (regras
+  `h1, h2, h3` do `global.css` do site); no build de producao o painel fica certo.
+- Causa: o grafo do admin alcanca todas as paginas do site (`d1.mjs:4` importa o barrel
+  `emdash`, que chega em `resolve.ts` -> `astro:config/server` -> `virtual:astro:pages`), e o
+  Astro dev escreve cada folha DUAS vezes no `<head>`: `<style data-vite-dev-id>` e
+  `<script type="module" src="/src/...css">` (`vite-plugin-app/environment.js:156-157`).
+  Upstream: emdash-cms/emdash#3714 e withastro/astro#18060 (PR #18061 aberto).
+- Medida: 14 folhas do site no DOM do admin. Tirar so o `<style>` do HTML deixou o DOM com as
+  mesmas 14, porque o cliente do Vite roda o `<script>` e injeta de novo.
+- Resolucao (0.2.3): `applySkin` remove os dois lados de cada par cujo modulo esta em `/src/`.
+  O id do `<style>` vem com `&amp;` e o src do `<script>` com `&` cru, entao o pareamento
+  desfaz o escape antes de comparar, e o caminho mais longo pareia primeiro (uma `src/lib/src/a.css`
+  nao pode casar por sufixo com `/src/a.css`). `test/inject.test.mjs` tem 4 mutantes.
+- Pegadinha ao testar numa copia: o middleware e pre-empacotado em
+  `node_modules/.vite/deps_ssr`. Trocar o tema em `node_modules` sem mover `node_modules/.vite`
+  antes de subir o dev nao surte efeito.

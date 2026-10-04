@@ -45,6 +45,14 @@ assert.notEqual(CLS_TO, CLS_FROM, "a mutacao anti-placebo precisa alcancar o min
 const MUTANT_CSS = SKIN_CSS.replace(CLS_FROM, CLS_TO);
 assert.notEqual(MUTANT_CSS, SKIN_CSS, "a mutacao anti-placebo precisa alcancar o skin.css real");
 
+// Mutante 2 (0.2.3, bloco [23d]): o numero volta a ter o px-3 do Tailwind enquanto o titulo
+// do cartao ja nao tem padding, os 12px de recuo medidos no Painel (titulo x=267, numero x=279).
+const ALIGN_FROM = `html[data-mode] main [data-testid="dashboard-metric-value"] {
+  padding-inline: 0;
+}`;
+const MUTANT_ALIGN_CSS = SKIN_CSS.replace(ALIGN_FROM, "");
+assert.notEqual(MUTANT_ALIGN_CSS, SKIN_CSS, "a mutacao anti-placebo precisa alcancar o bloco [23d]");
+
 // --- Classes reais do LayerCard "layered" (Secondary + Primary), lidas do
 // código-fonte do @cloudflare/kumo (layer-card.tsx) ---
 const ROOT_CLASSES = "flex w-full flex-col overflow-hidden rounded-lg bg-kumo-elevated text-base ring ring-kumo-hairline";
@@ -110,6 +118,7 @@ async function fixtureServer() {
     if (req.url === "/admin.css") return reply(res, "text/css; charset=utf-8", ADMIN_CSS);
     if (req.url === "/skin.css") return reply(res, "text/css; charset=utf-8", SKIN_CSS);
     if (req.url === "/skin-mutant.css") return reply(res, "text/css; charset=utf-8", MUTANT_CSS);
+    if (req.url === "/skin-mutant-align.css") return reply(res, "text/css; charset=utf-8", MUTANT_ALIGN_CSS);
     const skin = new URL(req.url, "http://fixture").searchParams.get("skin") || "/skin.css";
     return reply(res, "text/html; charset=utf-8", html(skin));
   });
@@ -124,6 +133,11 @@ async function measure(page, base, skinRoute) {
   await page.goto(`${base}/?skin=${encodeURIComponent(skinRoute)}`, { waitUntil: "networkidle" });
   return page.evaluate(() => {
     const round = (n) => Math.round(n * 10) / 10;
+    const textX = (el) => {
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      return range.getBoundingClientRect().x;
+    };
     const card = document.querySelector('[data-testid="dashboard-metric"]');
     const secondary = card.firstElementChild;
     const primary = card.lastElementChild;
@@ -138,6 +152,9 @@ async function measure(page, base, skinRoute) {
       primaryFontWeight: getComputedStyle(primary).fontWeight,
       loadedPrimaryHeight: round(primary.getBoundingClientRect().height),
       loadingPrimaryHeight: round(loadingPrimary.getBoundingClientRect().height),
+      // x do TEXTO (Range), nao da caixa: o recuo vem do padding dentro da caixa
+      titleX: round(textX(secondary.querySelector("h2"))),
+      valueX: round(textX(card.querySelector('[data-testid="dashboard-metric-value"]'))),
     };
   });
 }
@@ -158,6 +175,11 @@ function validate(metrics) {
     Math.abs(metrics.loadedPrimaryHeight - metrics.loadingPrimaryHeight) <= 0.5,
     `anti-CLS: o corpo carregado (${metrics.loadedPrimaryHeight}px) e o do esqueleto (${metrics.loadingPrimaryHeight}px) tem que bater a mesma altura`,
   );
+  // bloco [23d]: numero alinhado com o titulo do cartao.
+  assert.ok(
+    Math.abs(metrics.titleX - metrics.valueX) <= 0.5,
+    `numero alinhado: titulo em x=${metrics.titleX}, numero em x=${metrics.valueX}`,
+  );
 }
 
 test("dashboard: cartoes de metrica com sombra, banda de cabecalho e anti-CLS", async (t) => {
@@ -173,4 +195,7 @@ test("dashboard: cartoes de metrica com sombra, banda de cabecalho e anti-CLS", 
   // esqueleto: e exatamente o salto de layout medido no comentario do bloco.
   const mutant = await measure(page, base, "/skin-mutant.css");
   assert.throws(() => validate(mutant), /anti-CLS/, "a mutacao do min-height do bloco [20b] tem que reprovar a fixture");
+
+  const misaligned = await measure(page, base, "/skin-mutant-align.css");
+  assert.throws(() => validate(misaligned), /numero alinhado/, "sem o bloco [23d] o numero tem que sair do alinhamento");
 });

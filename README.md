@@ -81,6 +81,12 @@ The stylesheet is answered by that same middleware, at
 Cloudflare dev runner, and answering from the middleware also keeps the two install paths behaving
 identically.
 
+In `astro dev` only, the same middleware also takes your site's own stylesheets back out of the
+admin `<head>`. Astro dev currently writes the CSS of every page of the project into the admin
+(emdash-cms/emdash#3714, withastro/astro#18060), so a site whose layout styles `h1` or `.ring`
+repaints the panel in dev and nowhere else. Production HTML carries no `data-vite-dev-id` and goes
+through untouched.
+
 ## Two layers, and you can stop at the first
 
 ```js
@@ -97,7 +103,7 @@ Where the line falls, measured with `npm run surface` on this release:
 
 | | selectors | what it rides on |
 | --- | --- | --- |
-| named anchors | 281 | `data-*` attributes, tags, `.emdash-*`, `.kumo-*` |
+| named anchors | 344 | `data-*` attributes, tags, `.emdash-*`, `.kumo-*` |
 | generated classes | 109 | Tailwind utilities, no promise attached |
 
 There are 457 `!important` declarations, nearly all of them in the second layer, most fighting
@@ -149,6 +155,7 @@ consequence you are accepting is that the theme toggle in the panel header stops
 | --- | --- |
 | 0.1.x, 0.2.0, 0.2.1 | emdash 0.36.0 and 0.37.0, `@emdash-cms/admin` same |
 | 0.2.2 | emdash 0.36.0 to 1.1.0, `@emdash-cms/admin` same (fixtures run against 1.1.0) |
+| 0.2.3 | emdash 0.36.0 to 1.1.0; the new header and type-scale rules were measured on 1.1.0 |
 
 On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`,
 `.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`,
