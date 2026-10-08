@@ -1,0 +1,3264 @@
+/* ==========================================================================
+   skin.css  (v4, layer 2 of 2)
+   "WordPress" skin for the EmDash admin panel: the geometry that tokens cannot
+   express. Corners, metaboxes, the dark side menu, the 32px toolbar, the collapsed
+   menu tabs. Served from the site itself and injected into the <head> of
+   /_emdash/admin by the outer middleware. Does not touch core: if this file
+   disappears, the panel goes back to normal.
+
+   NEEDS tokens.css BEFORE IT. Every value in here reads a --wp-* custom property
+   declared there, and the middleware concatenates the two in that order.
+
+   Kumo names no part of the admin markup, so most rules here anchor on generated
+   class names and lean on !important. That is the unsupported half, and it is
+   measured, not guessed: `npm run surface` counts it and the CI fails when it grows.
+
+   v4 = the owner's v3 plus the 9 fixes from the 2026-09-07 audit (29 agents,
+   four fronts, each finding passed through a skeptic). Each fix is commented
+   at the point where it applies, with the measured reason.
+   ========================================================================== */
+
+/* ==========================================================================
+   [2] TOOLBAR  = #wpadminbar
+   ========================================================================== */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header {
+  height: var(--wp-toolbar-h) !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border-bottom: 0 !important;
+  font-size: 13px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, .25), 0 6px 16px -10px rgba(0, 0, 0, .45);
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header > div {
+  gap: 0 !important;
+  height: 100%;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header a,
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header button {
+  height: var(--wp-toolbar-h) !important;
+  min-height: 0 !important;
+  padding: 0 8px !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--wp-ink-text) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: var(--wp-toolbar-h) !important;
+  box-shadow: none !important;
+  -webkit-transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header a:hover,
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header button:hover,
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header a:focus-visible,
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header button:focus-visible {
+  background: var(--wp-ink-hover) !important;
+  color: var(--wp-accent-soft) !important;
+}
+
+/* FIX 6 (audit): without this, keyboard focus on the toolbar is invisible (the hover
+   background gives 1.16:1 against normal). Negative offset because the toolbar is 32px
+   and an outward ring would get clipped. WCAG 2.4.7 and 2.4.11. */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header a:focus-visible,
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header button:focus-visible {
+  outline: 2px solid var(--wp-accent-soft) !important;
+  outline-offset: -2px !important;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header svg {
+  width: 16px;
+  height: 16px;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header button[data-base-ui-tooltip-trigger] {
+  width: var(--wp-toolbar-h) !important;
+}
+
+/* avatar: small square, like WP's Gravatar */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header .rounded-full {
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 2px !important;
+  background: var(--wp-accent) !important;
+  color: var(--wp-accent-contrast) !important;
+  font-size: 10px !important;
+  font-weight: 600 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Desktop layout: toolbar fixed on top; menu and content drop down 32px;
+   the menu header (logo + site name) becomes the toolbar's left corner.
+   Below 768px EmDash uses its own mobile layout and none of this applies.
+   -------------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header > [data-sidebar="trigger"] {
+    display: none !important;   /* the collapse button is already in the menu footer */
+  }
+
+  html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) {
+    padding-top: var(--wp-toolbar-h) !important;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    z-index: 30 !important;   /* below the collapsed menu (z-40): the site name
+                                 needs to stay above the bar */
+  }
+
+  html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    z-index: 31 !important;
+    width: auto !important;
+    max-width: 45vw;
+    padding-right: 12px !important;
+  }
+
+  /* collapsed menu: EmDash swaps the container to fixed inset-y-0;
+     here it starts below the toolbar */
+  html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar)[data-state="collapsed"] :is(aside,nav).emdash-sidebar > [data-sidebar="content-container"] {
+    top: var(--wp-toolbar-h) !important;
+    bottom: 0 !important;
+    height: auto !important;
+  }
+}
+
+/* menu header (logo + site name) */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] {
+  height: var(--wp-toolbar-h) !important;
+  padding: 0 8px !important;
+  gap: 0 !important;
+  border: 0 !important;
+  background: var(--wp-ink) !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] a {
+  height: var(--wp-toolbar-h) !important;
+  width: auto !important;
+  max-width: none !important;
+  padding: 0 !important;
+  gap: 8px !important;
+  color: var(--wp-ink-text) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: var(--wp-toolbar-h) !important;
+  text-decoration: none !important;
+  -webkit-transition: color var(--wp-fast) ease;
+  transition: color var(--wp-fast) ease;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] a:hover {
+  color: var(--wp-accent-soft) !important;
+}
+
+/* the site name doesn't truncate or disappear when the menu collapses */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] a > span {
+  grid-template-columns: 1fr !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] a span {
+  width: auto !important;
+  max-width: none !important;
+  font-weight: 400 !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+/* ==========================================================================
+   [3] SIDE MENU  = #adminmenu
+   ========================================================================== */
+html[data-mode] :is(aside,nav).emdash-sidebar,
+html[data-mode] :is(aside,nav).emdash-sidebar > [data-sidebar="content-container"] {
+  background: var(--wp-ink) !important;
+  border-right: 0 !important;
+  box-shadow: inset -1px 0 0 rgba(0, 0, 0, .18);
+}
+
+/* edge to edge, no lateral breathing room, and NO scrollbar:
+   scrolling keeps working (mouse wheel, trackpad, keyboard),
+   only the track disappears. It was the track that ran over the little arrow. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="content"] > div {
+  padding: 0 !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="content"] > div::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="group"] {
+  gap: 0 !important;
+  margin: 0 !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu"] {
+  gap: 0 !important;
+}
+
+/* item */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] {
+  position: relative !important;
+  min-height: 36px !important;
+  /* round 3: 16px on the right so the label doesn't touch the active item's arrow or the
+     bar's border. Asymmetric on purpose: the left stays at 8px because it's what fixes
+     the icon's horizontal position, the same in both states. */
+  padding: 0 16px 0 8px !important;
+  border-radius: 0 !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  box-shadow: none !important;
+  text-decoration: none !important;
+  -webkit-transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] > div {
+  gap: 8px !important;
+  translate: none !important;
+  -webkit-transform: none !important;
+  transform: none !important;
+}
+
+/* hover: in EmDash, hover and active use the same token; in WP they're different */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"]:hover:not([data-active="true"]) {
+  background: var(--wp-ink-hover) !important;
+  color: var(--wp-accent-soft) !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"]:focus-visible,
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="trigger"]:focus-visible {
+  outline: 2px solid var(--wp-accent-soft) !important;
+  outline-offset: -2px !important;
+  box-shadow: none !important;
+}
+
+/* current item */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"][data-active="true"] {
+  background: var(--wp-accent) !important;
+  color: var(--wp-accent-contrast) !important;
+}
+
+/* the little arrow: removed from content flow and placed on top of the active item */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"][data-active="true"]::after {
+  content: "";
+  position: absolute;
+  right: 0;
+  top: 50%;
+  width: 0;
+  height: 0;
+  margin-top: -8px;
+  border: 8px solid transparent;
+  border-right-color: var(--wp-canvas);
+  pointer-events: none;
+}
+
+/* collapsed menu: the icon does NOT move. In round 3 the owner asked for the icon to stay in
+   the same horizontal position in both states, so `justify-content: center` was removed (it
+   becomes flex-start in block [17c]) and `padding: 0` was removed, which was what made the
+   icon shift when collapsing. Its spacing still comes from the single item padding rule, which
+   applies in both states: that's what guarantees they never diverge. */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar)[data-state="collapsed"] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] > div {
+  flex: 0 0 auto !important;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar)[data-state="collapsed"] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] > div > span {
+  display: none !important;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar)[data-state="collapsed"] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"][data-active="true"]::after {
+  display: none;
+}
+
+/* submenu (if any item has children) */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-sub"] {
+  background: var(--wp-ink-hover) !important;
+  border: 0 !important;
+  margin: 0 !important;
+  padding: 6px 0 !important;
+  gap: 0 !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-sub-button"] {
+  min-height: 28px !important;
+  padding: 0 12px 0 40px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--wp-ink-icon) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  box-shadow: none !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-sub-button"]:hover {
+  color: var(--wp-accent-soft) !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-sub-button"][data-active="true"] {
+  color: var(--wp-accent-contrast) !important;
+  font-weight: 600 !important;
+}
+
+/* group labels ("Conteudo", "Gerenciar", "Admin"): subtle separators */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="group-label"] {
+  margin: 5px 0 0 !important;
+  border: 0 !important;
+  border-top: 1px solid var(--wp-ink-line) !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="group-label"] > div > div {
+  margin: 0 !important;
+  padding: 10px 8px 4px !important;
+  color: var(--wp-ink-muted) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: .06em !important;
+  text-transform: uppercase !important;
+}
+
+/* footer = "Recolher menu" */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] {
+  height: 40px !important;
+  padding: 0 !important;
+  background: var(--wp-ink) !important;
+  border-top: 1px solid var(--wp-ink-line) !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] > div {
+  display: none !important;   /* the site name is already in the toolbar */
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"] {
+  width: 100% !important;
+  height: 40px !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  padding: 0 8px !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--wp-ink-icon) !important;
+  font-size: 14px !important;
+  -webkit-transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+}
+
+/* the text stays inside the button itself: the whole clickable area */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"]::after {
+  content: "Recolher menu";
+  white-space: nowrap;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"][aria-expanded="false"]::after {
+  display: none;
+}
+
+/* round 3: the collapse button also stops zeroing padding and centering, so its
+   icon doesn't shift when the bar shrinks. The justify becomes flex-start in block [17c]. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"][aria-expanded="false"] {
+  justify-content: flex-start !important;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"]:hover {
+  background: var(--wp-ink-hover) !important;
+  color: var(--wp-accent-soft) !important;
+}
+
+/* FIX 3 (audit): the mobile drawer's scrim uses bg-kumo-recessed, which the token
+   bridge maps to a light gray. Without this the scrim comes out almost white over the page.
+   kumo's opacity-80 already gives the transparency: here it's just the ink color. */
+html[data-mode] [data-sidebar-backdrop] {
+  background-color: var(--wp-ink) !important;
+}
+
+/* ==========================================================================
+   [4] MENU ICONS  (Phosphor, regular weight)
+       Bigger and with more presence. The weight comes from a stroke laid over the path:
+       Phosphor regular is a 16-unit outline on a 256 grid;
+       a stroke of 8 turns it into 24, which is exactly the family's "bold" weight.
+       No icon is swapped, so an EmDash update doesn't break it.
+   ========================================================================== */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] svg {
+  width: var(--wp-icon) !important;
+  height: var(--wp-icon) !important;
+  flex: 0 0 var(--wp-icon);
+  opacity: 1 !important;
+  color: var(--wp-ink-icon);
+  overflow: visible;
+  /* round 3: only the color interpolates. The owner asked to remove the icon's movement on hover,
+     and the transform transition here was the leftover half after removing the translate. */
+  -webkit-transition: color var(--wp-fast) ease;
+  transition: color var(--wp-fast) ease;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] svg[viewBox="0 0 256 256"] path {
+  stroke: currentColor;
+  stroke-width: var(--wp-icon-bold);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  paint-order: stroke fill;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"]:hover svg {
+  color: var(--wp-accent-soft);
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"][data-active="true"] svg {
+  color: var(--wp-accent-contrast);
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"] svg,
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header [data-sidebar="trigger"] svg {
+  width: var(--wp-icon) !important;
+  height: var(--wp-icon) !important;
+  opacity: 1 !important;
+}
+
+/* FIX 5 (audit): the extra weight only applies to Phosphor (256 grid). The "Recolher menu"
+   button's icon is kumo's PanelIcon, viewBox 24 with a 1.5 stroke: thickening it by 8
+   would paint a solid block. It's already born with the right weight, nothing to do here. */
+
+/* ==========================================================================
+   [5] CONTENT
+       The core padding stays as EmDash does it (p-6). Only what is WP:
+       light-weight heading, "Adicionar novo" button next to the heading in lists,
+       widgets in the .postbox pattern, zebra-striped table.
+   ========================================================================== */
+
+/* page title: 23px comes from the --text-2xl token; the weight WP wants is light */
+html[data-mode] main h1 {
+  font-weight: 400 !important;
+  color: var(--wp-text) !important;
+}
+
+/* REMOVED on 2026-09-07: the rule that forced `justify-content: flex-start` on the
+   title row. It stuck the button next to the h1 like in WordPress, but only worked on
+   screens WITHOUT a subtitle. On screens with a subtitle (Menus, Categories, Comentarios)
+   the h1 and the subtitle live in the same div, the button rose to vertical center and the
+   whole row went out of alignment. EmDash's layout is already `flex justify-between`, which
+   solves both cases: the right call here is to have no rule, and not push toward the other
+   side. The rules below stay, because they paint the BUTTON (the .page-title-action's
+   clothing), never the row's geometry. */
+
+/* = .page-title-action (on both screens) */
+html[data-mode] main h1 + div > a,
+html[data-mode] main h1 + div > button {
+  height: 30px !important;
+  min-height: 0 !important;
+  padding: 0 10px !important;
+  gap: 4px !important;
+  border: 1px solid var(--wp-accent) !important;
+  border-radius: 3px !important;
+  background: var(--wp-button-bg) !important;
+  color: var(--wp-accent) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 28px !important;
+  box-shadow: 0 1px 1px rgba(29, 35, 39, .04) !important;
+  text-decoration: none !important;
+  -webkit-transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, -webkit-transform var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, transform var(--wp-fast) ease;
+}
+
+/* 0.2.3: the last three lines are the header shapes EmDash 1.1.0 added (see [23]) */
+html[data-mode] main > div > div:has(> div > h1) > a,
+html[data-mode] main > div > div:has(> div > h1) > button,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button),
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button),
+html[data-mode] main > div > div:has(> h1) > :is(a, button) {
+  height: 30px !important;
+  min-height: 0 !important;
+  padding: 0 10px !important;
+  gap: 4px !important;
+  border: 1px solid var(--wp-accent) !important;
+  border-radius: 3px !important;
+  background: var(--wp-button-bg) !important;
+  color: var(--wp-accent) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 28px !important;
+  box-shadow: 0 1px 1px rgba(29, 35, 39, .04) !important;
+  text-decoration: none !important;
+  -webkit-transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, -webkit-transform var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, transform var(--wp-fast) ease;
+}
+
+/* (the rules with :has are kept separate from the ones without :has on purpose:
+    a browser without support discards only the invalid rule, not both) */
+html[data-mode] main h1 + div > a:hover,
+html[data-mode] main h1 + div > button:hover {
+  background: var(--wp-surface) !important;
+  border-color: var(--wp-accent-deep) !important;
+  color: var(--wp-accent-deep) !important;
+  box-shadow: 0 2px 6px -2px rgba(29, 35, 39, .18) !important;
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+}
+
+html[data-mode] main > div > div:has(> div > h1) > a:hover,
+html[data-mode] main > div > div:has(> div > h1) > button:hover,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):hover,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):hover,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):hover {
+  background: var(--wp-surface) !important;
+  border-color: var(--wp-accent-deep) !important;
+  color: var(--wp-accent-deep) !important;
+  box-shadow: 0 2px 6px -2px rgba(29, 35, 39, .18) !important;
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+}
+
+html[data-mode] main h1 + div > a:active,
+html[data-mode] main h1 + div > button:active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  box-shadow: none !important;
+}
+
+html[data-mode] main > div > div:has(> div > h1) > a:active,
+html[data-mode] main > div > div:has(> div > h1) > button:active,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):active,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):active,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  box-shadow: none !important;
+}
+
+html[data-mode] main h1 + div > a svg,
+html[data-mode] main h1 + div > button svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* FIX 7 (audit): the rules above write box-shadow with !important, and in Tailwind
+   v4 kumo's ring IS box-shadow: the focus ring dies. Two separate rules on purpose,
+   so a browser without :has() doesn't discard both. --wp-accent-deep because the button already
+   has a border in the accent color, and a ring of the same color would read as a thicker border. */
+html[data-mode] main h1 + div > a:focus-visible,
+html[data-mode] main h1 + div > button:focus-visible {
+  outline: 2px solid var(--wp-accent-deep) !important;
+  outline-offset: 2px !important;
+}
+
+html[data-mode] main > div > div:has(> div > h1) > a:focus-visible,
+html[data-mode] main > div > div:has(> div > h1) > button:focus-visible,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):focus-visible,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):focus-visible,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):focus-visible {
+  outline: 2px solid var(--wp-accent-deep) !important;
+  outline-offset: 2px !important;
+}
+
+html[data-mode] main > div > div:has(> div > h1) > a svg,
+html[data-mode] main > div > div:has(> div > h1) > button svg,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button) svg,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button) svg,
+html[data-mode] main > div > div:has(> h1) > :is(a, button) svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* fields: WP's border (#8c8f94) comes in through Tailwind's own ring */
+html[data-mode] main input.ring,
+html[data-mode] main textarea.ring,
+html[data-mode] main select.ring,
+html[data-mode] main [role="combobox"].ring {
+  --tw-ring-color: var(--wp-field-line);
+}
+
+/* round 4: with the lighter resting border, the pointer restores the measured 3.245:1 */
+html[data-mode] main input.ring:not(:disabled):hover,
+html[data-mode] main textarea.ring:not(:disabled):hover,
+html[data-mode] main select.ring:not(:disabled):hover,
+html[data-mode] main [role="combobox"].ring:not(:disabled):hover {
+  --tw-ring-color: #8c8f94;
+}
+html[data-mode] main [role="combobox"].ring:not(:disabled):focus-visible {
+  --tw-ring-color: var(--wp-accent);  /* combobox is a <button>, its focus comes only from the token */
+}
+
+html[data-mode] main input.ring:focus-visible,
+html[data-mode] main textarea.ring:focus-visible,
+html[data-mode] main select.ring:focus-visible {
+  --tw-ring-color: var(--wp-accent);
+  box-shadow: 0 0 0 1px var(--wp-accent), 0 0 0 4px var(--wp-accent-tint);
+}
+
+/* content links */
+html[data-mode] main a {
+  -webkit-transition: color var(--wp-fast) ease, background-color var(--wp-fast) ease;
+  transition: color var(--wp-fast) ease, background-color var(--wp-fast) ease;
+}
+
+/* --------------------------------------------------------------------------
+   widgets = .postbox (border and radius already come from the tokens; here only the header
+   and the body without the second frame)
+   -------------------------------------------------------------------------- */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline {
+  background: var(--wp-surface) !important;
+  overflow: hidden;
+  -webkit-transition: box-shadow var(--wp-normal) var(--wp-ease), -webkit-transform var(--wp-normal) var(--wp-ease);
+  transition: box-shadow var(--wp-normal) var(--wp-ease), transform var(--wp-normal) var(--wp-ease);
+}
+
+/* round 6 (2026-09-14, measured live on rkadvogadosimo /admin/media): `.group` is the
+   discriminator between a real .postbox widget (a static DIV, header + body, e.g.
+   Dashboard's Content / Recent Activity) and an unrelated card that happens to share the
+   same two utility classes. The Media Library grid item is exactly that: same
+   bg-kumo-elevated + ring-kumo-hairline surface, but it is a clickable card
+   (`group ... hover:ring-kumo-brand/50 focus-visible:ring-2`), and its first child is an
+   `aspect-video` image wrapper the admin itself ships with `p-0` so the thumbnail bleeds
+   edge to edge. The header rule below overrode that with a forced `padding: 0 12px`,
+   so every thumbnail rendered ~24px narrower than its card (206px content in a 230px
+   card, confirmed via getComputedStyle). No .postbox is ever a `.group` card, so this
+   guard costs nothing on the Dashboard and fixes the Media Library without a new
+   selector to maintain. */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child {
+  margin: 0 !important;
+  padding: 0 12px !important;
+  min-height: 36px !important;
+  border-bottom: 1px solid var(--wp-line) !important;
+  background: var(--wp-surface) !important;
+  color: var(--wp-text) !important;
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child h2,
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:first-child h3 {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > .ring-kumo-fill,
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:not(.group) > div:not(:first-child) {
+  --tw-ring-color: transparent;      /* removes the inner frame, the Tailwind way */
+  margin: 0 !important;
+  padding: 12px !important;
+  border-radius: 0 !important;
+  background: var(--wp-surface) !important;
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline .text-3xl {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+}
+
+/* round 5 (2026-09-08): EDGE TO EDGE, the same rule already applied to the side menu.
+   The widget body loses its lateral breathing room WHEN it holds a list, and that room moves
+   inside the row itself. This way the hover highlight covers the card's full width, like
+   in wp-admin, instead of floating inset 12px on each side.
+
+   WHY `:has(> .space-y-1)` AND NOT THE WHOLE RULE: the same element (LayerCard.Primary,
+   anchored by .ring-kumo-fill) is also the body of the metric cards and of any
+   plugin widget, where the content has NO inset of its own and would touch the border. The
+   `.space-y-1` is the wrapper EmDash puts only around the Dashboard's link lists
+   (CollectionList and RecentActivity, admin/dist/index.js). Without :has(), nothing changes: it
+   degrades to today's inset.
+   The `space-y-1` also disappears: with a separator between rows, the 4px gap becomes a hole. */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > .ring-kumo-fill:has(> .space-y-1) {
+  padding: 0 !important;
+}
+
+/* round 5.1 (2026-09-08): `margin-block`, not `margin-top`. Measured in the fixture: the
+   Tailwind v4 EmDash compiles puts the `space-y-1` gap as `margin-block-end` on the
+   PREVIOUS element, not as margin-top on the next one, so `margin-top: 0` zeroed the half that
+   was already zero and a 4px gap remained between rows. That was the "empty space on hover":
+   the highlight band would stop and a white strip appeared before the next one. */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline .space-y-1 > * {
+  margin-block: 0 !important;
+}
+
+/* list rows inside the widget */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="justify-between"],
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="rounded-md"] {
+  /* 12px on the side = the same inset the body used to have, now inside the row */
+  padding: 8px 12px !important;
+  border-radius: 0 !important;
+  color: var(--wp-accent) !important;
+  border-bottom: 1px solid var(--wp-canvas);
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="justify-between"]:last-child,
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="rounded-md"]:last-child {
+  border-bottom: 0;
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="justify-between"]:hover,
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="rounded-md"]:hover {
+  color: var(--wp-accent-hover) !important;
+  background: var(--wp-accent-tint) !important;
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a .font-medium {
+  font-weight: 400 !important;
+}
+
+/* --------------------------------------------------------------------------
+   listing tables = .wp-list-table
+   -------------------------------------------------------------------------- */
+html[data-mode] main table thead th {
+  background: var(--wp-surface) !important;
+  border-bottom: 1px solid var(--wp-line) !important;
+  font-weight: 400 !important;
+  padding: 8px 10px !important;
+}
+
+html[data-mode] main table tbody tr {
+  -webkit-transition: background-color var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease;
+}
+
+html[data-mode] main table tbody tr:nth-child(odd) {
+  background: var(--wp-button-bg) !important;
+}
+
+html[data-mode] main table tbody tr:hover {
+  background: var(--wp-accent-tint) !important;
+}
+
+html[data-mode] main table tbody td {
+  border-top: 1px solid var(--wp-canvas) !important;
+  padding: 8px 10px !important;
+  vertical-align: middle !important;
+}
+
+html[data-mode] main table tbody td a[class*="font-medium"] {
+  font-weight: 600 !important;
+}
+
+/* ==========================================================================
+   [6] EDITOR'S RIGHT PANEL
+       This is another EmDash "sidebar". It stays in its own design system, it only gets
+       the border and surface background to match the rest.
+   ========================================================================== */
+html[data-mode] aside[data-side="right"] > [data-sidebar="content-container"] {
+  background: var(--wp-surface) !important;
+  border-left: 1px solid var(--wp-line) !important;
+  box-shadow: -8px 0 24px -20px rgba(29, 35, 39, .25);
+}
+
+/* ==========================================================================
+   [7] SHADOW AND MOTION
+   ========================================================================== */
+
+/* Elevated surface shadow (widgets, tables, settings blocks).
+   Four layers: 1px outline, contact, distant ambient and diffuse tip.
+
+   WHY `border-color: transparent` (measured on the panel on 2026-09-07):
+   the outline is drawn by the FIRST shadow layer (`0 0 0 1px`), and the targets arrive
+   here in two different border states:
+     - panel card:      kumo's `ring`, `border-width: 0`  -> nothing to erase
+     - table and settings: 1px `border` in `--color-kumo-line`, which is the SAME color
+       (#c3c4c7) as our first layer -> was drawing a DOUBLE 2px line
+   Zeroing the COLOR (not the width) keeps the box the same size, so nothing shifts, and
+   leaves a single 1px outline in both cases. The internal separator (`divide-y`) is not
+   affected: it lives on the children, not on this element.
+
+   GUARDS (2026-09-07 audit): `div.border.bg-kumo-base` is a painting utility, not a
+   contract, and it hits about 110 elements in the panel. Since the shadow is `!important`, it
+   was REPLACING the own elevation of anything that already had its own. Four families were
+   hit in production: the marketplace's loading skeleton (it pulsed with a real card's
+   shadow), the user detail skeleton (it doesn't carry the class, it inherits the pulsing parent,
+   hence `:not(.animate-pulse *)`), the text editor's floating bar and the plugin
+   consent dialog (they lost `shadow-lg`), and the Widgets drag layer.
+   The guard fails safe: if the class disappears in an upgrade, it stops excluding and the
+   behavior goes back to today's, never worse. Do NOT add `:has(.animate-pulse)`: that
+   would erase the shadow on the user list's skeleton table frame, where it's
+   correct. */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline,
+html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]) {
+  /* round 5.1 (2026-09-08, owner's preference): `border`, not `border-color`. With a 1px
+     TRANSPARENT border the card's own background paints underneath it (default background-clip
+     is border-box), so between the content and the shadow's first-layer hairline there's a 1px
+     gap of surface color left over: it's the "hairline one pixel away" that the table and the
+     settings blocks already had by accident (they arrive here with Tailwind's 1px `border`) and
+     that the Dashboard card didn't have (it arrives with `border-width: 0` and only the ring). One
+     word equalizes the technique across three families: metric cards, Dashboard widgets (Content
+     and Recent Activity), listing tables and settings blocks.
+     OUT OF SCOPE: the editor's right panel, which is a band, not a card (block [7] is
+     scoped to `main`, and its sections are <section>, not `div.border.bg-kumo-base`). */
+  border: 1px solid transparent !important;
+  box-shadow:
+    0 0 0 1px var(--wp-line),
+    0 1px 1px rgba(29, 35, 39, .03),
+    0 32px 25px -35px rgba(29, 35, 39, .15),
+    0 12px 28px -18px rgba(29, 35, 39, .22) !important;
+}
+
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:hover,
+html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
+html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover {
+  box-shadow:
+    0 0 0 1px var(--wp-line),
+    0 1px 2px rgba(29, 35, 39, .04),
+    0 36px 28px -34px rgba(29, 35, 39, .18),
+    0 20px 40px -20px rgba(29, 35, 39, .28) !important;
+}
+
+/* only the card lifts on hover: table and settings block are not fully clickable */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:hover {
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+}
+
+/* entrances ------------------------------------------------------------- */
+@-webkit-keyframes wp-rise {
+  from { opacity: 0; -webkit-transform: translateY(8px); transform: translateY(8px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+@keyframes wp-rise {
+  from { opacity: 0; -webkit-transform: translateY(8px); transform: translateY(8px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+
+@-webkit-keyframes wp-slide {
+  from { opacity: 0; -webkit-transform: translateX(-10px); transform: translateX(-10px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+@keyframes wp-slide {
+  from { opacity: 0; -webkit-transform: translateX(-10px); transform: translateX(-10px); }
+  to   { opacity: 1; -webkit-transform: none; transform: none; }
+}
+
+@-webkit-keyframes wp-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes wp-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* load hierarchy: toolbar, then the menu item by item */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header {
+  -webkit-animation: wp-fade .35s ease-out both;
+  animation: wp-fade .35s ease-out both;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"] {
+  -webkit-animation: wp-slide .4s var(--wp-ease-out) both;
+  animation: wp-slide .4s var(--wp-ease-out) both;
+  -webkit-animation-delay: calc(.06s + var(--wp-i, 0) * 22ms);
+  animation-delay: calc(.06s + var(--wp-i, 0) * 22ms);
+}
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(2)  { --wp-i: 1; }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(3)  { --wp-i: 2; }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(4)  { --wp-i: 3; }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(5)  { --wp-i: 4; }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(6)  { --wp-i: 5; }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(7)  { --wp-i: 6; }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"]:nth-child(n+8) { --wp-i: 7; }
+/* each group enters a bit after the previous one */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="group"]:nth-child(2) [data-sidebar="menu-item"] { -webkit-animation-delay: calc(.14s + var(--wp-i, 0) * 22ms); animation-delay: calc(.14s + var(--wp-i, 0) * 22ms); }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="group"]:nth-child(3) [data-sidebar="menu-item"] { -webkit-animation-delay: calc(.30s + var(--wp-i, 0) * 22ms); animation-delay: calc(.30s + var(--wp-i, 0) * 22ms); }
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="group"]:nth-child(n+4) [data-sidebar="menu-item"] { -webkit-animation-delay: calc(.46s + var(--wp-i, 0) * 22ms); animation-delay: calc(.46s + var(--wp-i, 0) * 22ms); }
+
+/* content: title, then cards, then widgets; runs on every screen change
+   because EmDash (an SPA) mounts the blocks again */
+html[data-mode] main > div > * {
+  -webkit-animation: wp-rise .38s var(--wp-ease-out) both;
+  animation: wp-rise .38s var(--wp-ease-out) both;
+}
+html[data-mode] main > div > *:nth-child(2)   { -webkit-animation-delay: .06s; animation-delay: .06s; }
+html[data-mode] main > div > *:nth-child(3)   { -webkit-animation-delay: .12s; animation-delay: .12s; }
+html[data-mode] main > div > *:nth-child(4)   { -webkit-animation-delay: .18s; animation-delay: .18s; }
+html[data-mode] main > div > *:nth-child(5)   { -webkit-animation-delay: .24s; animation-delay: .24s; }
+html[data-mode] main > div > *:nth-child(n+6) { -webkit-animation-delay: .30s; animation-delay: .30s; }
+
+/* inside the widget, the rows arrive after the frame */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="justify-between"],
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a[class*="rounded-md"],
+html[data-mode] main table tbody tr {
+  -webkit-animation: wp-fade .3s ease-out both;
+  animation: wp-fade .3s ease-out both;
+  -webkit-animation-delay: calc(.22s + var(--wp-i, 0) * 30ms);
+  animation-delay: calc(.22s + var(--wp-i, 0) * 30ms);
+}
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(2),  html[data-mode] main table tbody tr:nth-child(2)  { --wp-i: 1; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(3),  html[data-mode] main table tbody tr:nth-child(3)  { --wp-i: 2; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(4),  html[data-mode] main table tbody tr:nth-child(4)  { --wp-i: 3; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(5),  html[data-mode] main table tbody tr:nth-child(5)  { --wp-i: 4; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(6),  html[data-mode] main table tbody tr:nth-child(6)  { --wp-i: 5; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(7),  html[data-mode] main table tbody tr:nth-child(7)  { --wp-i: 6; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(8),  html[data-mode] main table tbody tr:nth-child(8)  { --wp-i: 7; }
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a:nth-child(n+9), html[data-mode] main table tbody tr:nth-child(n+9) { --wp-i: 8; }
+
+/* browser view transitions: they apply when navigation reloads the
+   document (login, returning from the site). Inside EmDash's SPA, a screen
+   exit would need document.startViewTransition() in the router, which is JS. */
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  -webkit-animation: wp-vt-out .12s ease-out both;
+  animation: wp-vt-out .12s ease-out both;
+}
+
+::view-transition-new(root) {
+  -webkit-animation: wp-vt-in .24s var(--wp-ease-out) both;
+  animation: wp-vt-in .24s var(--wp-ease-out) both;
+}
+
+@-webkit-keyframes wp-vt-out { to { opacity: 0; } }
+@keyframes wp-vt-out { to { opacity: 0; } }
+@-webkit-keyframes wp-vt-in {
+  from { opacity: 0; -webkit-transform: translateY(4px); transform: translateY(4px); }
+}
+@keyframes wp-vt-in {
+  from { opacity: 0; -webkit-transform: translateY(4px); transform: translateY(4px); }
+}
+
+/* anyone who turned off system animations doesn't see any of this */
+@media (prefers-reduced-motion: reduce) {
+  html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header,
+  html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-item"],
+  html[data-mode] main > div > *,
+  html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline a,
+  html[data-mode] main table tbody tr {
+    -webkit-animation: none !important;
+    animation: none !important;
+  }
+  /* FIX 8 (audit): in a separate rule. A browser without ::view-transition (Safari 17,
+     Firefox ESR) invalidates the WHOLE list, and anyone who asked for less motion would receive all
+     the animations. Here the worst case is losing only these two lines. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    -webkit-animation: none !important;
+    animation: none !important;
+  }
+  html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline:hover {
+    -webkit-transform: none;
+    transform: none;
+  }
+}
+
+/* content scrollbar: REMOVED in round 3 (2026-09-08). The track disappears,
+   scrolling stays. The live rules are in block [R3.1] at the end of the file. */
+
+/* ==========================================================================
+   ROUND 2 OF ADJUSTMENTS (2026-09-07)
+   Everything here was born from measuring the panel's bundle and source maps
+   (@emdash-cms/admin 0.36.0, @cloudflare/kumo 2.6.0, embedded Base UI),
+   never from reading a screenshot. Each rule states which CONTRACT it anchored on:
+   a Base UI attribute, HTML semantics or a named class that kumo writes by
+   hand. A Tailwind utility class only appears where no contract exists,
+   and always with an upgrade-watch comment.
+
+   GOLDEN RULE OF THIS FILE: whoever positions a popup is Floating UI, via JS,
+   in the Positioner. No rule below writes transform, position, inset or
+   overflow on a popup. The only displacement used is the `translate` property,
+   which is independent of `transform` and stays outside the popup's transition.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   [R] LOG OF THE TWO REMOVALS IN THIS ROUND (already applied above)
+       Kept here because the next person will want to know why they disappeared.
+
+   R1. The forced alignment on the page header. Exact snippet to
+       look for (the comment that went with it also goes):
+
+         html[data-mode] main > div > div:has(> div > h1) {
+           justify-content: flex-start !important;
+           gap: 12px !important;
+         }
+
+       WHY IT'S GONE: it matched whenever the h1 lives inside an intermediate
+       div (subtitle, language selector, Media's min-w-0) and
+       swapped EmDash's `justify-between` for flex-start. Result: the
+       action rose to the middle of the row and hung next to the title,
+       with the subtitle below it. The only two correct screens were Users and
+       Dashboard, precisely the ones that did NOT match (h1 is a direct child). EmDash
+       already handles both cases with justify-between: the right call here is to have no rule.
+       STATE: already deleted in this file's working tree. What's still
+       operational: `dist/client/painel-wp.css` still ships the old version,
+       so it needs a build before deploy, otherwise the stale CSS goes live.
+
+   R2. The two selector lists in block [7] (elevated surface shadow)
+       need a guard. Look for these three lines:
+
+         html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline,
+         html[data-mode] main div:has(> table),
+         html[data-mode] main div.border.bg-kumo-base {
+
+       and swap them for:
+
+         html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline,
+         html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+         html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]) {
+
+       and do the same on the :hover list right below (same guards, with
+       `:hover` at the end of each guarded line).
+
+       WHY: `div.border.bg-kumo-base` is a painting utility, not a
+       contract, and it hits about 110 elements in the panel, not just table
+       and settings block. Since the shadow is `!important`, it REPLACES the
+       own elevation of anything that already had its own. Measured, four families were
+       hit today, in production: the marketplace and theme loading skeleton
+       (`animate-pulse ... border bg-kumo-base`), which pulsed with a
+       real card's shadow; the user detail skeleton card, which doesn't carry
+       the class but inherits the pulsing parent (hence
+       `:not(.animate-pulse *)`); the text editor's floating bar and the
+       plugin consent dialog, which lost `shadow-lg`; and the
+       Widgets drag layer, which went flat during the drag.
+       The guard fails safe: if the class disappears in an upgrade, it stops
+       excluding and the behavior goes back to today's, never worse.
+       Do NOT add `:has(.animate-pulse)`: that would erase the shadow on the
+       UserList skeleton table frame, where the shadow is correct.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   [8] USER MENU IN THE BAR  =  #wp-admin-bar-my-account .ab-sub-wrapper
+
+   The user menu is NOT a DropdownMenu: it's a kumo Popover
+   (Header.tsx:66-113, `<Popover.Content className="w-56 p-2" align="end">`)
+   with a PORTAL into <body>. Real DOM chain:
+     <div data-base-ui-portal>            direct child of <body>
+       <div role="presentation" ...>      Positioner, transform inline via JS
+         <div role="dialog" class="... kumo-popover-popup">   Popup
+
+   In other words: the popup does NOT live inside the <header>, so no ancestor
+   reaches it, and the toolbar's token bridge (block [1], lines 165-173) doesn't
+   reach it. That's why the tokens are redeclared here, on the element itself,
+   exactly the same trick already used in the side menu (lines 148-162).
+
+   HOOK: the security link, which only exists in this popover.
+   `.kumo-popover-popup` alone is NOT enough: it's a named class kumo
+   writes by hand (popover.tsx:217) on EVERY Popover.Content, including the
+   content ones (BylineFilter, ContentList's date range, byline selector,
+   code block language, PortableTextEditor's link editor). The href
+   comes from TanStack Router with basepath "/_emdash/admin", so
+   "/_emdash/admin/settings/security"; we use `*=` and not `$=` to survive
+   a future trailingSlash or querystring. The other three occurrences of
+   /settings/security in the bundle are the Settings page nav, the command
+   palette item and the route definition: none of them inside a popover.
+   The hook keeps holding during the exit animation, because the link only
+   unmounts together with the popup.
+
+   WHY NOT THE TRIGGER: it would need a `:has()` anchored on <html> with a
+   descendant argument, re-evaluated on every DOM mutation in a panel whose
+   editor changes the DOM on every keystroke, and today it wouldn't catch anything
+   besides this same menu (the theme toggle is a plain Button, the palette is CommandPalette).
+   WATCH: if EmDash gains a SECOND menu in the bar, extend this
+   selector with that menu's content hook, never with :has() at the root.
+   ========================================================================== */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"]) {
+  /* token bridge: custom properties inherit, so children read them without needing
+     their own selector */
+  --text-color-kumo-default: var(--wp-ink-text);
+  --text-color-kumo-subtle:  var(--wp-ink-muted);
+  --text-color-kumo-strong:  var(--wp-accent-contrast);
+  --text-color-kumo-link:    var(--wp-accent-soft);
+  /* 8.0:1 on #1d2327 and 6.5:1 on the hover #2c3338. The #b32d2e from line 30
+     was tuned for a WHITE surface and measures 2.5:1 on the dark ink, meaning it
+     would fail AA right on the "Sair" item. */
+  --text-color-kumo-danger:  #f4a3a3;
+  --color-kumo-base:         var(--wp-ink);
+  --color-kumo-tint:         var(--wp-ink-hover);   /* hover:bg-kumo-tint on the items */
+  --color-kumo-line:         var(--wp-ink-line);
+  --color-kumo-hairline:     var(--wp-ink-line);
+  --color-kumo-fill:         var(--wp-ink-line);    /* outline outline-kumo-fill */
+  /* the arrow is drawn by three <path>s: the body uses fill-kumo-base, already
+     darkened above, but the border uses fill-kumo-tip-shadow, which under the
+     `color-scheme: light` from line 26 resolves to light gray. Without these
+     two lines a light hairline would remain around it. */
+  --color-kumo-tip-shadow:   var(--wp-ink-line);
+  --color-kumo-tip-stroke:   transparent;
+
+  background-color: var(--wp-ink) !important;
+  color: var(--wp-ink-text) !important;
+  outline-color: var(--wp-ink-line) !important;
+  /* round 3: the radius is now asymmetric and the shadow has four layers. Both things
+     live in block [16], which comes later and wins by source order. Here only what didn't change remains. */
+}
+
+/* [8b] STUCK TO THE BAR. kumo asks for `sideOffset: 8` (popover.tsx:189) and
+   Floating UI applies that to the Positioner's TRANSFORM, which is forbidden to touch.
+   The `translate` property is independent of `transform`, composes before it,
+   doesn't enter the popup's `transition-[transform,scale,opacity]` (so it applies
+   instantly, without animating) and doesn't change the layout box that Floating UI
+   measures. The popup also doesn't use its own `transform`: Tailwind v4 compiles
+   `scale-90` into the standalone `scale` property, so there's no collision with the
+   entry and exit animation.
+   Both directions are covered because flip() throws the menu upward in a
+   short window. The bar has 32px forced on line 179, the popup used to be born at 40px
+   and now returns to 32px, flush, without overlapping the trigger.
+   Older Safari ignores `translate` and falls back to the 8px gap: clean degradation.
+   The 8px fallback is deliberate: if the number should ever live in a single
+   token, just create `--wp-popover-offset: 8px` in block [0] and nothing else changes. */
+/* round 3: this pair is gone. `translate` is ONE property, so the X and Y axes need
+   to be written together, and the new pair (with the 5px that Base UI's shift() steals on the
+   right) is in block [16a]. Keeping both pairs would make the lower one silently erase the upper one. */
+
+/* [8c] THE ARROW DISAPPEARS. WordPress has no beak on the bar's submenu, and with the menu
+   flush it would paint a triangle right on top of the bar itself.
+   ANCHOR: kumo renders <Popover.Arrow> as the popup's first child and
+   Base UI delivers it as <div aria-hidden="true" data-side ...>. No other
+   direct child of the popup has the aria-hidden + data-side pair.
+   WHY `visibility` AND NOT `display: none`: the arrow element is read by JS
+   at three points, not one (the shift limiter, which IS positioning; the
+   --transform-origin calculation; and Floating UI's arrow() middleware, which
+   measures getDimensions). `display: none` zeroes all three and changes geometry;
+   `visibility: hidden` keeps the measured 20x10 and leaves everything identical to
+   today, just out of the paint. The arrow is decorative (aria-hidden), so leaving
+   the paint is enough and there's no accessibility cost.
+   `!important` because the arrow carries Tailwind's `flex` utility. */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"])
+  > [aria-hidden="true"][data-side] {
+  visibility: hidden !important;
+}
+
+/* [8d] INTERNAL BORDERS. Tailwind v4's preflight leaves `border: 0 solid`,
+   so the identity block's `border-b` and the <hr> before "Sair" inherit
+   currentColor: over dark ink that turns into a glaring white streak.
+   The rule is SCOPED to the menu on purpose. The generic version (a `*` applying
+   to every `.kumo-popover-popup`) has specificity (0,3,1) and would override
+   any `border-kumo-*` utility (0,1,0) inside ANY
+   popover: measured, it would break the `border-t border-kumo-line` on the
+   ContentList's date selector footer, swapping a 10%-black hairline for a solid
+   black line. */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"])
+  :is(div, hr) {
+  border-color: var(--wp-ink-line);
+}
+
+/* [8e] OPTIONAL, just finishing, and it does NOT darken anything. The CONTENT menus
+   are already light on their own, by construction: neither Select (popup role="presentation"
+   with a role="listbox" inside) nor DropdownMenu (popup role="menu") carries the
+   kumo-popover-popup class, and the content popover doesn't satisfy the [8]
+   hook. This here is the WP card applied to those two families, so they
+   don't end up with kumo's light shadow next to the listings.
+
+   MEASURED PITFALL: in Tailwind v4 the `ring ring-kumo-line` these two
+   popups use is NOT its own property, it's drawn INSIDE box-shadow.
+   Overwriting box-shadow without re-adding the layer erases the 1px border and the menu
+   becomes a white card with no outline over a white surface. That's why the line
+   comes back explicit as the FIRST layer, in the same color the ring already had.
+   Don't repeat `border-radius` or `--color-kumo-line` here: both already apply
+   by inheritance from block [1] and would be a no-op. */
+html[data-mode] [data-base-ui-portal] [role="menu"],
+html[data-mode] [data-base-ui-portal] [role="presentation"]:has(> [role="listbox"]) {
+  box-shadow:
+    0 0 0 1px var(--wp-line),
+    0 3px 5px rgba(0, 0, 0, .2) !important;
+}
+
+
+/* [8f] EDGE TO EDGE (round 5, 2026-09-08). Same rule as the side menu: the item occupies
+   the popup's full width and the highlight has no rounded corner.
+
+   WHAT WAS HAPPENING, measured in the fixture with the panel's real CSS: the user
+   menu's `Popover.Content` is born with `px-4 py-3` from kumo's base plus the
+   `w-56 p-2` that EmDash's Header passes, and `px-4` WINS over `p-2` in the Tailwind
+   v4 cascade (padding-inline after padding). Measured result: 12px 16px padding on the popup and
+   3px border-radius on the items, meaning every hover floated inset 16px on each side.
+
+   `overflow: hidden` because, without padding, the first and last item's highlight would
+   spill over the popup's rounded corner.
+   Don't touch the arrow: it's already out of the picture in [8c]. */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"]) {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+/* the identity block (name + email) is the only child with border-b */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"])
+  > div.border-b {
+  margin-bottom: 0 !important;
+  padding: 10px 12px !important;
+}
+
+/* the item grid loses the gap: flush rows, the wp-admin way */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"])
+  > div.grid {
+  gap: 0 !important;
+}
+
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"])
+  :is(a, button) {
+  border-radius: 0 !important;
+  padding: 8px 12px !important;
+}
+
+/* the <hr> before "Sair" runs corner to corner (its color already comes from [8d]) */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"]) hr {
+  margin: 0 !important;
+}
+
+/* [8g] THE SAME FOR THE MENUS PORTED FROM KUMO (DropdownMenu, Select, Combobox,
+   Autocomplete). Measured in the installed package: DropdownMenu's popup is born `min-w-36 p-1.5`
+   with item `rounded-md px-2 py-1.5` and separator `-mx-1 my-1`; Select and Autocomplete
+   swap the popup's padding for `mx-1.5` on EACH item. Both forms produce the same look:
+   an inset highlight with a round corner. Both die here.
+
+   SCOPE: only menu items and list options (their own `role`). `margin-inline` is NOT zeroed
+   on just any child on purpose: the Combobox's search field is `mx-1.5` with
+   `w-[calc(100%-0.75rem)]`, so zeroing its margin would leave 12px of slack on the right. */
+html[data-mode] [data-base-ui-portal] [role="menu"],
+html[data-mode] [data-base-ui-portal] [role="listbox"] {
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+html[data-mode] [data-base-ui-portal] :is([role="menuitem"], [role="menuitemcheckbox"],
+  [role="menuitemradio"], [role="option"]) {
+  border-radius: 0 !important;
+  margin-inline: 0 !important;
+  padding-inline: 12px !important;
+}
+
+/* separator: `-mx-1` left 2px on each side inside the `p-1.5`; with no padding on the popup it
+   just needs to stop pulling outward. Two selectors because kumo draws the separator
+   sometimes with a role, sometimes as a plain <div class="h-px">. */
+html[data-mode] [data-base-ui-portal] :is([role="menu"], [role="listbox"]) [role="separator"],
+html[data-mode] [data-base-ui-portal] :is([role="menu"], [role="listbox"]) > .h-px {
+  margin-inline: 0 !important;
+}
+
+
+/* ==========================================================================
+   [9] MODAL SCRIM  =  wp-admin's overlay (rgba(0,0,0,.7))
+
+   Two of the panel's scrims LIGHTEN instead of darkening, and both come from our
+   own token bridge in block [1]:
+     Dialog and AlertDialog: `bg-kumo-recessed opacity-80` (dialog.tsx:231), and
+       --color-kumo-recessed becomes var(--wp-line-soft) = #dcdcde (line 109).
+     Command palette: `bg-kumo-overlay opacity-80` (command-palette.tsx:164,
+       mounted in the Shell), and --color-kumo-overlay becomes var(--wp-surface) =
+       #ffffff (line 105). This is the worst one: a WHITE scrim at 80%.
+   The same defect was already fixed in the mobile drawer (FIX 3, line 537) and wasn't
+   propagated. It can't be fixed at the token level: bg-kumo-recessed and bg-kumo-overlay
+   also paint recessed surfaces on the menubar, tabs, select item, combobox
+   and sidebar.
+
+   The hook has two halves, STRUCTURE and the WRONG CLASS:
+     [data-base-ui-portal] > ...   every Base UI portal is a <div
+                                   data-base-ui-portal> on <body>, and the scrim is a
+                                   DIRECT child of it. The ">" matters: the Select
+                                   popup is also role="presentation", but it lives
+                                   inside the Positioner.
+     role="presentation"           the DialogBackdrop's contract.
+     [data-open] / [data-closed]   both states, otherwise the scrim would flash
+                                   light again during the 150ms exit animation, when
+                                   Base UI swaps data-open for data-closed.
+     :is(.bg-kumo-recessed,        ONLY the scrims painted with a light token. Without this
+        .bg-kumo-overlay)          half the rule would also catch the user detail
+                                   scrim, which is already `bg-black/50` and does NOT have
+                                   opacity-80: its alpha lives in the
+                                   background-color itself, so overwriting it would give
+                                   a 100% opaque screen instead of a scrim.
+   MEASURED ON THE PANEL ON 2026-09-07, and it dropped a guard the audit asked for:
+   the previous version of this rule had `:not([data-base-ui-inert])`, to exclude
+   the InternalBackdrop (invisible click blocker, also a direct child of the
+   portal). Except the one carrying `data-base-ui-inert` is the VISIBLE scrim, not the
+   blocker: with the guard, the rule matched ZERO elements and the background kept
+   lightening. What actually separates the two is the `.bg-kumo-recessed` class, which the
+   blocker doesn't have. Verified in the DOM with the "Criar novo menu" modal open:
+   the selector below matches exactly 1 element, 1223 by 879 pixels.
+
+   Don't touch opacity: kumo animates .8 to 0 on exit, and an !important there
+   would kill the fade and leave the scrim opaque until unmount. A lighter scrim is made in the
+   ink's alpha, never in the property kumo uses to animate.
+   POPOVER HAS NO SCRIM: kumo doesn't render Popover.Backdrop, only Dialog,
+   AlertDialog and the drawer. The bar popover's darkening is block [8].
+   ========================================================================== */
+html[data-mode] [data-base-ui-portal] > [role="presentation"]:is([data-open], [data-closed]):is(.bg-kumo-recessed, .bg-kumo-overlay) {
+  background-color: var(--wp-ink) !important;   /* #1d2327 at 80% = WP's rgba(0,0,0,.7) */
+}
+
+
+/* ==========================================================================
+   [10] EDITOR'S RIGHT PANEL = METABOXES
+
+   There's no conflict with block [6]: it paints the <div data-sidebar="content-container">
+   and the rules here paint DESCENDANTS of that div. They're different elements,
+   not the same declaration fighting.
+
+   ANCHOR: <section data-sorting data-disclosure>, emitted by
+   SortableContentSettingsSection. That PAIR of attributes is exclusive to this
+   component across the whole admin, so there's no positional chain here. The drag
+   handle is [data-sortable-handle] and the collapsible header is
+   button[aria-expanded] (Base UI's Collapsible.Trigger, which emits
+   aria-expanded in both states): also an attribute.
+   FORBIDDEN in this section, and it's not a preference: `:nth-child` to find a block.
+   The order is draggable and gets saved per user and per collection in localStorage,
+   so a child position would paint the wrong block after the client's first drag. And no
+   `transform` or `position` on the section: dnd-kit writes an inline
+   transform during the drag and the handle is absolute inside it.
+
+   TWO NUMBERS TO WATCH ON EMDASH UPGRADE:
+   1. the -16px inset mirrors the `p-4` EmDash puts on the section's child.
+      If it becomes p-5, the inset becomes -20px.
+   2. the title's DEPTH. Measured today, the h3 is exactly two
+      levels below the section:
+        section > div.p-4 > h3            (Publicar, Propriedade, SEO, plugins)
+        section > div.p-4 > div > h3      (Traducoes, Taxonomias)
+        section > div.p-4 > div.flex > h3 (Bylines)
+      The rules below lock onto these two levels on purpose. A loose
+      descendant (`section h3`) would also reach the INTERNAL h3 of a
+      plugin panel, which is third-party markup: there the negative inset would throw the
+      plugin's title outside the card, and since the tree above is overflow-x-hidden
+      the result is CLIPPED text. Gaining a wrapper level in an upgrade, the
+      title loses the band (silent degradation, doesn't break) and the fix is
+      adding `> div` to the chain.
+   RTL WATCH: like block [6], these rules use data-side="right",
+   which becomes "left" in an RTL interface. The panel is pt-BR, so it applies today.
+   ========================================================================== */
+
+/* the gap between the boxes becomes WP's gray screen.
+   Two lines on purpose: the first catches the sections' direct wrapper
+   (ContentSettingsPanel's root), the second catches the scroll area, otherwise
+   a white band is left below the last box. The content-container stays white
+   (block [6]) so the top action bar keeps sitting on a surface. */
+/* round 5 (2026-09-08): the gray gap is GONE. The owner asked for the end of the floating
+   metabox look: the sections become flush bands, separated only by a hairline, and with no gap
+   there's no gray screen to paint. Background goes back to being a surface. */
+html[data-mode] :is(aside, nav)[data-side="right"] div:has(> section[data-sorting]),
+html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto:has(section[data-sorting]) {
+  background: var(--wp-surface) !important;
+}
+
+/* the scrollbar OVERLAYS, and the only way to do that is to not draw one at all.
+   Measured and already noted in round 4 (line ~1880): "only shows up while scrolling" isn't CSS, it's a
+   system preference; with "Always" on macOS any visible bar takes up layout
+   space, and that's what showed up as a dark strip next to "Publicar". Hidden,
+   scrolling stays fully working (wheel, trackpad, keyboard, drag), exactly as it already is on the
+   side menu since round 3. ACCEPTED COST: the permanent hint that there's more
+   content below disappears. */
+html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none;
+}
+
+html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* the box */
+html[data-mode] section[data-sorting][data-disclosure] {
+  /* NOT OPTIONAL: React sets `inline-size: 100%` as an INLINE style. With
+     the 12px side margin that gives 100% + 24px inside a parent that is
+     overflow-x-hidden: it doesn't become a scrollbar (the visual gate would slip past unnoticed), it becomes a
+     CLIP, and every box's right border disappears. */
+  inline-size: auto !important;
+  /* round 5: ZERO margin. The box becomes a band: no corner, no shadow, no side border, just
+     the top hairline separating one section from the next (EmDash already emits `border-t` with
+     `first:border-t-0`, so the first one doesn't get a doubled hairline). The alignment with the
+     action bar's buttons no longer comes from the margin: it comes from the `p-4` EmDash itself puts
+     on the section's child, which is the same 16px as that bar's `px-4`. */
+  margin: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid var(--wp-line) !important;
+  border-radius: 0 !important;
+  background: var(--wp-surface) !important;
+  box-shadow: none !important;
+}
+
+/* `:first-of-type` and not `:first-child`: dnd-kit's DndContext renders the
+   HiddenText/LiveRegion pair as a sibling of the sections, with no portal. Today it comes out
+   AFTER, so `:first-child` would work; `:first-of-type` stays correct if
+   it ever comes out before. */
+html[data-mode] section[data-sorting][data-disclosure]:first-of-type {
+  margin-top: 0 !important;
+  border-top: 0 !important;   /* the action bar above already closes with its own hairline */
+}
+
+/* header band: the title is a loose <h3> (Publicar, SEO, Taxonomias,
+   Propriedade, Traducoes, plugin panels). Two levels because the
+   depth changes from block to block (see note 2 above). */
+html[data-mode] section[data-sorting] > div > h3,
+html[data-mode] section[data-sorting] > div > div > h3 {
+  display: block;
+  margin: -16px -16px 16px !important;
+  padding-block: 8px;
+  /* round 5: 16px, not 12px. With the section edge to edge and its body in `p-4`, the
+     title only lines up with the field below and with the action bar's button if it uses the
+     same 16px. 40px still reserves room for the drag handle. */
+  padding-inline: 16px 40px;
+  border-bottom: 1px solid var(--wp-line);
+  background: var(--wp-button-bg);
+  color: var(--wp-text);
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+}
+
+/* "Bylines" wraps the title in a flex row alongside a help button: there
+   the band is the WHOLE row, and the h3 goes back to being just text.
+   The `flex` class is the discriminator because `div:has(> h3)` without the class would also
+   catch the Traducoes panel's root, which wraps the h3 AND the whole list:
+   the panel would become one giant band. If EmDash removes `flex` from that row,
+   Bylines loses the band (silent degradation, doesn't break).
+
+   THAT IS NOT A HYPOTHESIS ANYMORE, it shipped: 0.1.2 (commit 39ae114) dropped the
+   class from these 10 selectors as part of a Tailwind-anchor cleanup, and 0.1.4 put it
+   back. Taxonomias and Traducoes wrap the title AND the content in the same bare
+   <div>, so with block [21]'s `display: flex` on it the title went to the left, the
+   whole term list to the right, and the band vanished. MEASURED on the fixture at
+   368px: taxonomy title at x=17 with 76.1px, checkbox list starting at x=93.1 next to
+   it; correct is the title at x=1, 367 by 36px, with the list below at y=376.
+   The 0.1.2 check ran on a running panel that had no taxonomy and no translation on
+   screen, so the extra match count was zero there. test/panel-headers.test.mjs now
+   holds the four panels, and its mutant is exactly this removal. */
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+  margin: -16px -16px 16px !important;
+  padding-block: 8px !important;
+  padding-inline: 16px 40px !important;   /* round 5: same ruler as the loose h3 */
+  border-bottom: 1px solid var(--wp-line);
+  background: var(--wp-button-bg);
+}
+
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  background: none !important;
+}
+
+/* collapsible header (Sumario, Revisoes) = Collapsible.Trigger. EmDash sets
+   `width: calc(100% - 1.5rem)` and `inset-inline-start: -0.75rem` INLINE: only
+   !important wins. */
+html[data-mode] section[data-disclosure="true"] button[aria-expanded] {
+  width: calc(100% + 32px) !important;
+  inset-inline-start: 0 !important;
+  margin: -16px -16px 12px !important;
+  padding-block: 8px !important;
+  padding-inline: 12px 40px !important;
+  height: auto !important;
+  min-height: 36px !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid var(--wp-line) !important;
+  background: var(--wp-button-bg) !important;
+}
+
+/* The label does NOT inherit the button's typography: it's a <Text bold as="span"> and
+   kumo puts `text-base font-medium` on the span ITSELF. Inheritance doesn't beat the
+   element's own class. With `--text-base: 13px` (line 123) and
+   `--font-weight-medium: 500`, "Sumario" and "Revisoes" would come out 13px/500
+   sitting next to seven 14px/400 titles, in the same column. */
+html[data-mode] section[data-disclosure="true"] button[aria-expanded] span {
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+}
+
+html[data-mode] section[data-disclosure="true"] button[aria-expanded]:hover {
+  background: var(--wp-accent-tint) !important;
+}
+
+/* the drag handle now lives inside the band.
+   `>` on purpose and safe: the credits editor also emits
+   [data-sortable-handle] on the credit rows, but there the button is a GRANDCHILD of the
+   section; the DIRECT child is only the section's own. */
+html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
+  top: 4px !important;            /* round 5.2: (36.6 - 28) / 2, the same math as the other two */
+  inset-inline-end: 6px !important;
+  border-radius: 3px !important;  /* round 5.2: same as the (i) and the "+", see block [21] */
+}
+
+/* while dragging, EmDash hides the content and shows [data-sortable-heading] */
+html[data-mode] section[data-sorting="true"] [data-sortable-heading] {
+  min-height: 36px !important;    /* EmDash sets 48 inline */
+  padding-block: 8px !important;
+  padding-inline: 12px 40px !important;
+  background: var(--wp-button-bg);
+}
+
+html[data-mode] section[data-sorting="true"] [data-sortable-heading] span {
+  font-size: 14px !important;     /* EmDash sets text-[15px] on the span */
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+}
+
+/* the delete block, at the panel's foot, uses the same framing (round 5.1: the
+   framing is now a band, not a box. With the sections already edge to edge, this was the
+   last floating card in the right panel: a frame was left around the
+   "Mover para a lixeira" button, inside another frame. Only the top hairline remains, like the sections. */
+html[data-mode] [data-testid="content-trash-actions"] {
+  margin: 0 !important;
+  border: 0 !important;
+  border-top: 1px solid var(--wp-line) !important;
+  border-radius: 0 !important;
+  padding: 12px 16px !important;
+  background: var(--wp-surface) !important;
+}
+
+
+/* ==========================================================================
+   [11] LISTING TABLE STATE CELL (empty, loading, error)
+
+   The squeeze was OURS, not EmDash's: it sets `py-8` (32px top and
+   bottom) on those cells, and the table block's `main table tbody td { padding: 8px 10px
+   !important }` rule (line 824) erases it. Here the breathing room comes back,
+   and ONLY where it's a state, never on a data row.
+
+   ANCHOR: td[colspan] (an attribute that doesn't disappear, it's what makes the cell span the
+   table) plus the breathing-room class. Measured in the bundle, this selector matches 13
+   cells, ALL state rows, ZERO data rows:
+     Comentarios (loading and empty), Artigos e colecoes (loading, empty and
+     no-search-results), Lixeira, Tipos de conteudo, byline schema
+     (loading, error with a Repetir button, and empty at py-12) and Usuarios.
+   LEFT OUT, on purpose, are the other td[colspan] that are NOT a state:
+     "Carregar mais pastas" and Media's folder error row (py-3), which are
+     action and alert, and the two loading rows that coexist WITH data rows
+     (py-6 in Media and py-4 in Usuarios), where a 96px band in the middle of the
+     list would be worse than the misalignment. Accepted side effect: on those two
+     screens there's still a small jump between "Carregando" and "Nenhum".
+   The table the client writes in the article body is also left out with no
+   guard needed: it's editor HTML, it carries no utility class.
+
+   `height` on a table cell is a MINIMUM HEIGHT, so a long state message
+   (the "nenhum usuario" one has a button alongside) grows normally, doesn't clip.
+   WATCH: if an upgrade swaps `py-8` for another value, the cell just goes back to
+   being squeezed, nothing breaks, and the fix is adding the class to the :is().
+   ========================================================================== */
+html[data-mode] main table tbody td[colspan]:is(.py-8, .py-12) {
+  height: 96px;                 /* minimum, about 3 lines */
+  padding: 24px 12px !important;
+  text-align: center;           /* EmDash already sets text-center; this is belt and suspenders */
+}
+
+/* the state row is excluded from the zebra stripe and hover: in WP it's a clean band, not
+   a clickable row. Specificity (0,3,6) against the (0,2,5) of the zebra and
+   hover (lines 816 and 820), so it wins even with both at !important.
+   A browser without :has() only loses THIS rule: the row goes back to getting the zebra stripe and the
+   breathing room above still applies. */
+html[data-mode] main table tbody tr:has(> td[colspan]:is(.py-8, .py-12)),
+html[data-mode] main table tbody tr:has(> td[colspan]:is(.py-8, .py-12)):hover {
+  background: var(--wp-surface) !important;
+}
+
+
+/* ==========================================================================
+   [12] LISTING EMDASH BUILDS WITH <div> INSTEAD OF <table>
+        (Taxonomias/Categorias and Redirecionamentos)
+
+   WHY IT WAS MISSING: this container arrives as `border rounded-lg` WITHOUT `bg-kumo-base`
+   and WITHOUT `overflow-x-auto`, so it doesn't match any of block [7]'s three
+   card selectors. It was left with a raw 1px outline, no background and no shadow,
+   alone among the listings (comments, for example, is
+   `rounded-md border bg-kumo-base overflow-x-auto` and is caught by the last two).
+
+   ANCHOR = the header band WITH ITS BACKGROUND TINT: a direct child that has
+   `border-b` AND `bg-kumo-tint/50`. `border-b` alone is NOT enough: measured in the bundle,
+   `div.border.rounded-lg:has(> .border-b)` matches 17 times, and 14 are a card,
+   modal or panel (the plugin consent dialog, the editor's image detail
+   panel, which has TWO children like this, the type editor's fields panel,
+   the device-authorization badge, and ten WordPress importer cards,
+   including the two red ERROR ones, which would end up white).
+   Worse: in Redirecionamentos every list ROW is a direct child with
+   `border-b`, so the band's rule would repaint the whole list as a header.
+   With `bg-kumo-tint/50` added, the pair exists on 6 divs in the bundle and only 3 are
+   a DIRECT child of a `div.border.rounded-lg`: the taxonomy and the two redirect
+   lists. Zero false positives.
+
+   `rounded-lg` is left as is on purpose: the sibling listing (comments) is
+   `rounded-md` and isn't squared by the skin either. Squaring it only here
+   would recreate the very divergence being fixed.
+   ========================================================================== */
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50) {
+  background: var(--wp-surface) !important;
+  border-color: transparent !important;   /* the outline comes from the shadow's first layer, like in [7] */
+  box-shadow:
+    0 0 0 1px var(--wp-line),
+    0 1px 1px rgba(29, 35, 39, .03),
+    0 32px 25px -35px rgba(29, 35, 39, .15),
+    0 12px 28px -18px rgba(29, 35, 39, .22) !important;
+}
+
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50):hover {
+  box-shadow:
+    0 0 0 1px var(--wp-line),
+    0 1px 2px rgba(29, 35, 39, .04),
+    0 36px 28px -34px rgba(29, 35, 39, .18),
+    0 20px 40px -20px rgba(29, 35, 39, .28) !important;
+}
+
+/* the header band gets the same treatment as real tables' <thead>
+   (line 804), MINUS the padding: in a <table> the th and td both get
+   8px 10px and stay aligned; here only the band would be touched and the
+   labels would slide 6px to the left relative to the cells, which are
+   px-4. The `py-2 px-4` that already comes from EmDash gives the same 8px vertically. */
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50) > .border-b.bg-kumo-tint\/50 {
+  border-bottom: 1px solid var(--wp-line) !important;
+  background: var(--wp-surface) !important;
+  font-weight: 400 !important;
+}
+
+
+/* ==========================================================================
+   [13] HEADER BUTTONS WITH THE SAME VISUAL WEIGHT
+
+   Two things measured, one about CASCADE and one about REACH.
+
+   (a) CASCADE. The two existing .page-title-action families (lines
+       610 and 629) write `color: ... !important` in a sheet WITHOUT @layer, and
+       that LOSES to kumo's !important, which lives inside
+       `@layer utilities` (`.\!text-kumo-default{color:...!important}`, and
+       `!text-kumo-default` is in the `secondary` variant, which is <Button>'s
+       default). Cascade rule with layers: important INSIDE a layer
+       beats important OUTSIDE a layer. Practical effect today, on every screen:
+       the button already uses WordPress's background and border, but the text stays #1d2327
+       instead of the accent blue. The path that works is going through the TOKEN, which
+       kumo's own !important resolves. One line per family, additive.
+
+   (b) REACH. Neither family reaches an action living inside a GROUPING WRAPPER.
+       In Taxonomias both buttons live inside a `div.flex.gap-2` because
+       of the language selector, and in Media inside a `div.shrink-0`:
+       in both, the h1 is in the block with a subtitle (kills the `h1 + div` family) and
+       the buttons are GRANDCHILDREN (kills the `:has(> div > h1) > a` family). It's not
+       a design decision, it's a gap between the two families: the family WITHOUT
+       a subtitle already paints an action inside a grouping wrapper (Bylines screen,
+       `h1 + div > a`). The block below only completes the symmetry, no new shape.
+       `:not(:has(h1))` excludes the title block, the only other div-child
+       of the row (checked in Tipos de conteudo, Redirecionamentos, Secoes,
+       Widgets, Menus, byline schema, Conteudo and Comentarios: in none
+       of them does the other div have a button).
+       ACCEPTED CONSEQUENCE: EmDash's hierarchy on that screen (outline for
+       "Nova taxonomia", secondary for "Adicionar termo") disappears, as it already
+       disappears on the other nine screens where the skin dresses up the header action.
+       WATCH: if EmDash puts a control that is NOT an action in that wrapper,
+       it will get dressed as .page-title-action. Visual failure, doesn't break.
+   ========================================================================== */
+
+/* (a) the two families that already exist: the text color goes through the token.
+   0.2.3: `--color-white` too. The `primary` variant (Novo redirecionamento, New section,
+   New byline in 1.1.0) paints its text with `!text-white`, which compiles to
+   an important `color: var(--color-white)` inside @layer utilities: same cascade problem,
+   same way out. Scoped to the button, so nothing else in the panel loses its white. */
+html[data-mode] main h1 + div > a,
+html[data-mode] main h1 + div > button {
+  --text-color-kumo-default: var(--wp-accent);
+  --color-white: var(--wp-accent);
+}
+
+html[data-mode] main > div > div:has(> div > h1) > a,
+html[data-mode] main > div > div:has(> div > h1) > button,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button),
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button),
+html[data-mode] main > div > div:has(> h1) > :is(a, button) {
+  --text-color-kumo-default: var(--wp-accent);
+  --color-white: var(--wp-accent);
+}
+
+html[data-mode] main h1 + div > a:hover,
+html[data-mode] main h1 + div > button:hover {
+  --text-color-kumo-default: var(--wp-accent-deep);
+  --color-white: var(--wp-accent-deep);
+}
+
+html[data-mode] main > div > div:has(> div > h1) > a:hover,
+html[data-mode] main > div > div:has(> div > h1) > button:hover,
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button):hover,
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button):hover,
+html[data-mode] main > div > div:has(> h1) > :is(a, button):hover {
+  --text-color-kumo-default: var(--wp-accent-deep);
+  --color-white: var(--wp-accent-deep);
+}
+
+/* (b) the missing family: action inside the grouping wrapper, on the row WITH a subtitle.
+   Same declarations as the other two, on purpose: in the header WordPress
+   dresses every action as .page-title-action.
+   Contrast checked: #2271b1 on #f6f7f7 = 4.80:1, passes AA for normal
+   13px text, and it's the same pair the panel already uses on the other nine screens.
+   Touch target: 30px tall, above the gate's 24px.
+   0.2.3: the last selector of each rule is Tipos de conteudo in EmDash 1.1.0, which wraps the
+   whole page in one more div (main > div.space-y-6 > div.space-y-4 > row). See [23]. */
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a,
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button) {
+  --text-color-kumo-default: var(--wp-accent);
+  height: 30px !important;
+  min-height: 0 !important;
+  padding: 0 10px !important;
+  gap: 4px !important;
+  border: 1px solid var(--wp-accent) !important;
+  border-radius: 3px !important;
+  background: var(--wp-button-bg) !important;
+  color: var(--wp-accent) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 28px !important;
+  box-shadow: 0 1px 1px rgba(29, 35, 39, .04) !important;
+  text-decoration: none !important;
+  -webkit-transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, -webkit-transform var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease, color var(--wp-fast) ease, box-shadow var(--wp-fast) ease, transform var(--wp-fast) ease;
+}
+
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a:hover,
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:hover,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button):hover {
+  --text-color-kumo-default: var(--wp-accent-deep);
+  background: var(--wp-surface) !important;
+  border-color: var(--wp-accent-deep) !important;
+  color: var(--wp-accent-deep) !important;
+  box-shadow: 0 2px 6px -2px rgba(29, 35, 39, .18) !important;
+  -webkit-transform: translateY(-1px);
+  transform: translateY(-1px);
+}
+
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a:active,
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:active,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button):active {
+  -webkit-transform: translateY(0);
+  transform: translateY(0);
+  box-shadow: none !important;
+}
+
+/* the box-shadow above is !important and kumo's ring IS box-shadow: without this
+   rule the focus ring dies. Same FIX 7 already applied to the other two
+   families (lines 694 and 700). */
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a:focus-visible,
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button:focus-visible,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button):focus-visible {
+  outline: 2px solid var(--wp-accent-deep) !important;
+  outline-offset: 2px !important;
+}
+
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > a svg,
+html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)) > button svg,
+html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) > :is(a, button) svg {
+  width: 14px !important;
+  height: 14px !important;
+}
+
+/* ==========================================================================
+   [4B] "RECOLHER MENU" BUTTON: arrow in a circle, flipping with the state
+        kumo already puts an icon there: Sidebar.PanelIcon, a panel rectangle
+        with an inner line that slides (viewBox 24, stroke 1.5). It reads as
+        "panel", not as "collapse", and it gets lost among the menu icons.
+        Swapped for Phosphor 2.1.10's ArrowCircle, which is already installed: same
+        family as the other items, same 256 grid, same weight trick
+        (stroke 8 = the family's bold) that section [4] applies to the rest of the menu.
+        State hook = the button's OWN aria-expanded, not the wrapper's data-state:
+        kumo has a third state ("peeking") that breaks a rule pinned to
+        [data-state="collapsed"].
+        mask-image + currentColor (not background-image): the icon inherits the theme's
+        color and gets the blue hover for free, with a single SVG per direction.
+   ========================================================================== */
+
+/* kumo's panel icon is removed, only in the footer (the header trigger stays as is) */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"] > svg {
+  display: none !important;
+}
+
+/* expanded: arrow points LEFT (about to shrink) */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"]::before {
+  content: "";
+  flex: 0 0 var(--wp-icon);
+  width: var(--wp-icon);
+  height: var(--wp-icon);
+  background-color: currentColor;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20256%20256'%20fill='%23000'%20stroke='%23000'%20stroke-width='8'%20stroke-linejoin='round'%20stroke-linecap='round'%20paint-order='stroke'%3E%3Cpath%20d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H107.31l18.35,18.34a8,8,0,0,1-11.32,11.32l-32-32a8,8,0,0,1,0-11.32l32-32a8,8,0,0,1,11.32,11.32L107.31,120H168A8,8,0,0,1,176,128Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20256%20256'%20fill='%23000'%20stroke='%23000'%20stroke-width='8'%20stroke-linejoin='round'%20stroke-linecap='round'%20paint-order='stroke'%3E%3Cpath%20d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm48-88a8,8,0,0,1-8,8H107.31l18.35,18.34a8,8,0,0,1-11.32,11.32l-32-32a8,8,0,0,1,0-11.32l32-32a8,8,0,0,1,11.32,11.32L107.31,120H168A8,8,0,0,1,176,128Z'/%3E%3C/svg%3E");
+}
+
+/* collapsed: arrow points RIGHT (about to expand) */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"][aria-expanded="false"]::before {
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20256%20256'%20fill='%23000'%20stroke='%23000'%20stroke-width='8'%20stroke-linejoin='round'%20stroke-linecap='round'%20paint-order='stroke'%3E%3Cpath%20d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-93.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32-11.32L148.69,136H88a8,8,0,0,1,0-16h60.69l-18.35-18.34a8,8,0,0,1,11.32-11.32Z'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%20256%20256'%20fill='%23000'%20stroke='%23000'%20stroke-width='8'%20stroke-linejoin='round'%20stroke-linecap='round'%20paint-order='stroke'%3E%3Cpath%20d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216Zm45.66-93.66a8,8,0,0,1,0,11.32l-32,32a8,8,0,0,1-11.32-11.32L148.69,136H88a8,8,0,0,1,0-16h60.69l-18.35-18.34a8,8,0,0,1,11.32-11.32Z'/%3E%3C/svg%3E");
+}
+
+/* ==========================================================================
+   ROUND 3 OF ADJUSTMENTS (2026-09-07)
+   Paste at the END of public/painel-wp.css, after block [4B].
+
+   Everything here was measured in the bundle, the source maps and the running panel
+   (@emdash-cms/admin 0.36, @cloudflare/kumo 2.6.0, embedded Base UI), and each
+   item went through a skeptic who refuted the proposal before it became a rule.
+
+   THREE LAWS THAT APPLY TO THE WHOLE BLOCK:
+   1. NO @layer, on purpose. EmDash's [data-theme=classic]:not([data-mode=dark])
+      block is UNLAYERED (measured with postcss: zero ancestors, 28 declarations,
+      offset 199597 in styles.css), and in the cascade a rule with no layer beats ANY
+      layer. Emitting these rules inside @layer base would make all of them silently
+      lose to classic: no error, no console, just the wrong color.
+   2. html[data-mode] prefix on everything. The admin's ThemeProvider writes
+      root.setAttribute("data-theme","classic") and ("data-mode", resolvedTheme) in the
+      SAME useEffect (dist/index.js:95-97), so [data-mode] always exists
+      whenever classic applies. html:root[data-mode] = (0,2,1) beats classic
+      (0,2,0). Where the target is a TOKEN, the selector is html:root[data-mode] and not
+      html[data-mode]: (0,1,1) would lose to block [0] on line 20 and the rule
+      would become dead letter.
+   3. Whoever positions a popup is Floating UI, via JS, in the Positioner. No rule
+      below writes transform, position, inset or overflow on a popup. The only
+      displacement used is `translate`, a property independent of `transform`.
+
+   WHAT DIDN'T MAKE IT INTO THIS ROUND, and why (so nobody re-proposes it):
+   . Route B for the collapsed label (the <span> itself becoming a tab via position:fixed):
+     measured, the tab doesn't follow the menu's scroll, a 1-to-1 error against the
+     displacement, and the menu really does scroll here (scrollHeight 1030 against
+     clientHeight 773). Route A stays, where Floating UI keeps owning the
+     position. It would only be worth revisiting if it ever relies on anchor positioning.
+   . `mask-image: none` on the menu's scroll viewport: the only measured reason to
+     kill it was to free up route B. Without route B, the fade at the ends becomes the
+     ONLY hint that the menu scrolls, because the track is already hidden on lines
+     349-357. Left as is.
+   . Removing the `translateY(-1px)` from the panel card's hover (lines 895-898) and
+     from the header buttons (656, 666, 1676): it's the owner's preference about
+     motion in the CONTENT, and this round he asked for MORE interpolation in
+     the content. It needs explicit sign-off, and if it goes in it has to go into all four
+     spots, otherwise the card stops rising and the button keeps rising.
+   . JS-based menu resize handle: kumo's `isResizing` is unreachable from outside,
+     so the resize would have a 250ms transition fighting !important on every
+     frame. The wp-admin being imitated has no resizable menu: it has a fixed width and
+     a fold button, which the panel already has.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   [R3] WHAT GOES OUT OF THE CURRENT FILE
+
+   The new rules below win by ORDER (same selector, same specificity,
+   declared later), so the panel is already correct even if the removals
+   aren't done. TWO exceptions are MANDATORY, marked with [!]: they erase
+   `padding: 0 !important` in rules of HIGHER specificity, and without the removal
+   the collapsed menu's icon touches the border instead of stopping at 8px.
+
+   R3.1  Content scrollbar. Delete lines 1032 to 1046 entirely:
+
+           html[data-mode] main {
+             scrollbar-width: thin;
+             scrollbar-color: #a7aaad var(--wp-canvas);
+           }
+           html[data-mode] main::-webkit-scrollbar { width: 12px; }
+           html[data-mode] main::-webkit-scrollbar-thumb {
+             background: #a7aaad;
+             border: 3px solid var(--wp-canvas);
+             border-radius: 8px;
+           }
+
+         Replaced by the live rules right below, in this same section.
+
+   R3.2  [!] Collapsed menu, item centering. On lines 423 to 432, delete
+         the TWO marked declarations:
+
+           ... [data-sidebar="menu-button"] {
+             justify-content: center !important;   <- becomes flex-start in [17c]
+             padding: 0 !important;                <- DELETE, no replacement
+           }
+           ... [data-sidebar="menu-button"] > div {
+             flex: 0 0 auto !important;
+             justify-content: center !important;   <- becomes flex-start in [17c]
+           }
+
+         The collapsed item's padding has to keep coming from line 372, which
+         applies in BOTH states: that's exactly what stops the icon from moving on
+         collapse. Redeclaring 8px here, in a more specific rule, is what would make
+         the two states silently diverge on the next upgrade.
+
+   R3.3  [!] Collapsed "Recolher menu" button. On lines 524 to 527, delete only the
+         `padding: 0 !important;` line (the justify-content becomes flex-start in
+         [17c]). Its breathing room now comes from line 500, which also applies to
+         both states.
+
+   R3.4  Icon displacement on hover. Two edits in block [4]:
+         . lines 555 and 556: remove the `transform var(--wp-normal)
+           var(--wp-ease-out)` half from the list, leaving only `color var(--wp-fast) ease`.
+         . lines 569 and 570: delete both transform lines:
+             -webkit-transform: translateX(1px);
+             transform: translateX(1px);
+         The movement was OURS, not kumo's: on its side there's only
+         `group-hover/menu-button:opacity-100` on the chevron, pure opacity.
+
+   R3.5  Breathing room on the item's right. Line 372, swap
+             padding: 0 8px !important;
+         for
+             padding: 0 16px 0 8px !important;
+         (rule [17d] does the same on top, for anyone who'd rather just append).
+         THE MENU WIDTH STAYS AT 230px. The owner asked for a NARROWER bar this
+         round, so the +10px compensation on line 45 is left out: the label
+         drops from 186px to 178px, about one character. If truncation ever
+         becomes a problem, the fix is ONE edit on line 45 (230px to 240px), never
+         a second declaration of the token further down here, which would silently
+         win over whoever edited section [0].
+
+   R3.6  User menu shadow. Line 1183, inside block [8]:
+             box-shadow: 0 3px 5px rgba(0, 0, 0, .2) !important;
+         replaced by [16b]'s four layers.
+
+   R3.7  User menu displacement and corner. Lines 1200 to 1206 (the two
+         current [8b] rules): replaced by [16a]'s pair, which adds the X axis and
+         the corners. It has to be the WHOLE pair: `translate` is a single property,
+         so writing the X axis in one rule and the Y in another would erase the first.
+   ========================================================================== */
+
+/* R3.1, live part: the content loses the track, not the scrolling.
+   Wheel, trackpad, keyboard and touch drag keep working: only the
+   artwork disappears. ACCEPTED COST, and it's real: the permanent hint that there's more
+   content below disappears, and so does the DRAG target, which is the only scrolling path
+   for someone using a mouse with no wheel. No WCAG criterion requires a visible bar, and the
+   <main> already wasn't keyboard-focusable in Safari before this rule (that's
+   pre-existing, doesn't originate here).
+   MEASURED SIDE EFFECT: `scrollbar-color` IS INHERITED, so line 1035
+   used to tint, by inheritance, every scrollable area INSIDE main (overflow-x-auto table,
+   code block, textarea). Without it, those go back to the browser's default gray,
+   which is similar to the previous #a7aaad.
+   The content widens by 12px, because the 12px ::-webkit-scrollbar turned
+   macOS's overlay bar into a classic bar, which took up space. */
+/* round 4: GLOBAL RULE. Thin (11px) and discreet across every scrollable area of the panel, except the
+   side bar (hidden on line 349). No ::-webkit-scrollbar anywhere: it's the one
+   that kills macOS's overlay bar. "Only shows up while scrolling" is NOT CSS: it's the
+   system preference (Appearance > Show scroll bars > When scrolling); with it set to
+   "Always", any bar takes up space. Color #787c82 = 3.68:1 on the canvas, passes AA. */
+html[data-mode] {
+  scrollbar-color: #787c82 transparent;
+}
+html[data-mode] main,
+html[data-mode] main *:not(:where(.no-scrollbar, .kumo-tabs-list)),
+html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto {
+  scrollbar-width: thin;
+}
+
+/* kumo still draws its OWN bar inside the menu, which isn't the native one: it's
+   a Base UI ScrollArea.Scrollbar (sidebar.tsx:804-813), `w-1.5 opacity-0`
+   that rises to 1 on data-[scrolling] and data-[hovering]. Lines 349 to 357
+   hide only the native one, so it used to reappear when hovering over the menu.
+   ANCHOR: Base UI converts every unmapped state into data-<key>, and
+   `orientation` isn't in scrollAreaStateAttributesMapping, so the Scrollbar
+   comes out with data-orientation="vertical" and the Viewport doesn't (its state doesn't have
+   that key). No :nth-child.
+   Hiding it does NOT unmount or lock the component: Base UI's `shouldRender` reads
+   getHiddenState(viewportEl), from the VIEWPORT, not the bar, and its
+   getBoundingClientRect reads only run on onPointerDown/onPointerMove, which don't
+   fire on an element with display none. The menu's fade mask stays
+   alive, because it's fed by variables written on the Viewport. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="content"] > [data-orientation] {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   R3.8  THE THEME TOGGLE COMES OUT OF THE BAR
+
+   The panel has no real dark mode and never will: wp-admin doesn't have one,
+   EmDash's classic theme doesn't either (measured, the string "data-theme=classic"
+   appears ONCE in the entire styles.css, inside
+   [data-theme=classic]:not([data-mode=dark]), with 28 tokens for light and ZERO for
+   dark), and line 26 of this sheet already forces `color-scheme: light`, which
+   neutralizes kumo's 130 light-dark() calls at once. Keeping the button means keeping a
+   control that promises one thing and delivers another, whose only real effect today
+   is silently degrading 14 tokens (see R3.9).
+
+   DOUBLE ANCHOR, on purpose. The positional one alone (a[href][target] + button) would be
+   dangerous: if an EmDash bump removes or moves the ThemeToggle, it would start matching
+   the NEXT BUTTON, which is the user menu (Sair, Configuracoes). A client
+   with no logout button is far worse than a client with a useless theme button. The
+   data-base-ui-tooltip-trigger is stamped by Base UI on the Tooltip's trigger, and
+   ThemeToggle is the only header control with a `title` prop (kumo's Button
+   only wraps in a Tooltip when there's a title): the user menu and the Sidebar.Trigger
+   have no title, so they never match. With both requirements together, an
+   upgrade's failure becomes "the sun reappears", visible right away, and never "the wrong
+   button disappeared".
+   UPGRADE WATCH: if the button comes back, check whether EmDash removed the `title`
+   (lost the tooltip) or reordered the header.
+   The rule on line 231 (32px width on that same button) stays inert, and doesn't
+   get in the way: if EmDash puts another button with a tooltip in the bar, it still
+   gives it the right width.
+   -------------------------------------------------------------------------- */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > div > header
+  a[href][target] + button[data-base-ui-tooltip-trigger] {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   R3.9  THE 14 TOKENS THAT EVAPORATE WHEN data-mode=dark
+
+   EmDash's block is [data-theme=classic]:not([data-mode=dark]). When
+   data-mode=dark enters the <html>, the whole block stops matching and its 28 tokens
+   fall back to kumo's `:root,:host` light-dark() (it falls there, not to
+   :root[data-mode=dark], because :root,:host is UNLAYERED and the dark block lives
+   inside @layer base: a layer loses to what has no layer).
+
+   And data-mode=dark IS REACHABLE TODAY, with nobody clicking anything: the
+   ThemeProvider uses defaultTheme "system" and reads prefers-color-scheme, and
+   admin.astro has a BLOCKING is:inline script in the head that stamps data-mode
+   before this sheet's <link>. It only takes the client's system being in dark mode.
+
+   Of those 28, the skin already redeclares 18. The 14 below were inherited, and in
+   dark mode they'd change value on their own, leaving WordPress's palette for Tailwind's
+   light ramp (line 26's `color-scheme: light` forces light-dark's light branch,
+   so it doesn't go dark: it goes off-brand).
+   THE MOST IMPORTANT ONE IS HOVER: in wp-admin the fill DARKENS from #dcdcde to
+   #c3c4c7; without this, in dark mode it LIGHTENS (oklch(0.922) to oklch(0.965)) and the
+   button gets lighter on hover, the opposite of the rest of the
+   panel.
+
+   Values copied literally from the classic block, checked one by one: in light mode
+   nothing changes (it's additive), in dark mode the panel now looks the same as light.
+   Specificity (0,2,1) beats classic (0,2,0) and loses to the skin's scoped
+   blocks (0,3,3) for the menu, the bar and the popover, which is exactly what's
+   wanted. None of these 14 has an !important declaration inside @layer utilities
+   (zero occurrences in the bundle), so the unlayered declaration truly wins.
+   Measured accessibility gain: with the fallback, info text #2271b1 over Tailwind's
+   blue-100 gave 4.24:1 and failed AA; fixing info-tint to
+   #e7f4fe raises that same text to 4.62:1 and it passes, without touching text color.
+   REGRESSION TO WATCH ON EVERY EMDASH BUMP: if classic changes, these 14 don't
+   change with it (that's the point), but the other 18 remain a valid
+   comparison against the new styles.css.
+   -------------------------------------------------------------------------- */
+html:root[data-mode] {
+  --color-kumo-fill:          #dcdcde;
+  --color-kumo-fill-hover:    #c3c4c7;  /* hover DARKENS, like in wp-admin */
+  --color-kumo-contrast:      #1d2327;
+  --color-kumo-interact:      #c3c4c7;
+  --text-color-kumo-strong:   #50575e;
+  --text-color-kumo-inactive: #a7aaad;
+  --color-kumo-info:          #72aee6;
+  --color-kumo-info-tint:     #e7f4fe;
+  --color-kumo-success:       #00a32a;
+  --color-kumo-success-tint:  #edfaef;
+  --color-kumo-warning:       #dba617;
+  --color-kumo-warning-tint:  #fcf9e8;
+  --color-kumo-danger:        #d63638;
+  --color-kumo-danger-tint:   #fcf0f1;
+}
+/* note: these 14 are status BACKGROUND. The 4 status TEXT tokens keep
+   our own AA values from lines 30 to 33 (#007017, #b32d2e, #996800, #2271b1),
+   deliberately different from classic. Do not overwrite.
+   Measured contrast of the resulting pairs: 5.86:1 on success, 5.67:1 on danger,
+   4.58:1 on warning, 4.62:1 on info. All pass AA. */
+
+
+/* ==========================================================================
+   [14] EMPTY-STATE ACTION ON THE BLOCK AXIS
+
+   CAUSE MEASURED IN THE BUNDLE, not from a screenshot. kumo's <Button> is born with
+   `group flex w-max shrink-0 items-center` (buttonVariants, button.tsx:134), which
+   styles.css compiles to display:flex plus width:max-content: a BLOCK BOX
+   with a shrunk width. The empty-state card is `border rounded-lg p-12
+   text-center` (MenuList.tsx:187), and text-align centers text and icon in
+   line, but does NOT shift a block box: it stays flush against the start border.
+   MEASURED IN PRODUCTION (/_emdash/admin/menus): the "Criar menu" button sits 49px from
+   the start border and 1290px from the end. With this rule: 669.5px on both sides,
+   and the horizontal-scroll gate stays clean.
+   justify-content on the parent doesn't help, because the parent isn't flex: what centers
+   a shrunk block box is the AUTO MARGIN.
+
+   ANCHOR: `data-kumo-component` is an attribute kumo writes by hand on the
+   element itself (button.tsx:322 for Button, 406 for LinkButton), so it survives
+   a utility swap in an upgrade. The third line covers EmDash's RouterLinkButton,
+   which builds the same look by calling buttonVariants but does NOT emit the
+   attribute. `w-max` only exists in buttonVariants (the only occurrence in kumo/src, and
+   the admin only uses `min-w-max`), so `a.flex.w-max` doesn't reach a regular link.
+   WATCH: `.text-center` is a utility, not a contract. If EmDash swaps
+   these blocks for its own EmptyState component, the rule stops matching and the
+   button goes back to the left (visual failure, never breaks).
+
+   MEASURED INVENTORY (every Button/LinkButton/RouterLinkButton in the admin, with the parent
+   resolved by indentation). 16 cases, none gets worse:
+     CHANGE (12, all empty-state, error, or "load more" actions):
+       MenuList:187 (Menus), Sections:255 (Secoes), ContentTypeEditor:625,
+       RepeaterField:164 and PortableTextEditor:2226 (repeater),
+       MarketplaceBrowse:131 and ThemeMarketplaceBrowse:110 (marketplace errors),
+       DeviceAuthorizePage:196, ContentPickerModal:216, MediaLibrary:1244 (<td>),
+       byline-schema:267 (the same "Repetir" block [11] cites, <td>) and
+       router:2524 (the app's error screen).
+     MATCH AND CHANGE NOTHING (4, verified in the browser): LoginPage:117, which arrives
+       with `w-full` (twMerge erases the w-max, width 100%, margin resolves to
+       zero) and MediaPickerModal:687, BylineCreditsEditor:468 and
+       MediaUploadDialog:421, which are `flex flex-col items-center` and were already
+       centered.
+   DON'T MATCH, checked one by one: an action inside a grouping wrapper (not a direct child), the
+   <span> with buttonVariants inside a <label> on the importer's two dropzones,
+   the `inline-block` link on the plugin detail error, animate-pulse skeleton
+   (none has text-center), kumo's dropdown menu, popover, toast and pagination (the
+   7 text-center in kumo/src have no button inside), and the sidebar, the header
+   and the shell (zero text-center).
+   The only `.text-center` that is a ROW flex across the whole admin
+   (BylineCreditsEditor:540) has no button inside. WATCH: if an upgrade puts
+   a button there, the auto margin pushes the siblings to the edges. That's the only
+   way this rule could misalign something.
+
+   NOT SCOPED TO `main` ON PURPOSE: this way it also applies in the content-picker
+   modal, the device authorization screen and the app's error screen, which live
+   outside <main>. `!important` isn't needed: an unlayered declaration beats a
+   utility inside @layer utilities (`.mx-auto` lives there) and none of these
+   buttons carries mx-*. `margin-inline` is logical, so it follows RTL.
+   ========================================================================== */
+html[data-mode] .text-center > :is([data-kumo-component="Button"],
+                                   [data-kumo-component="LinkButton"],
+                                   a.flex.w-max) {
+  margin-inline: auto;
+}
+
+
+/* ==========================================================================
+   [15a] WHAT'S BORN SQUARE STAYS SQUARE
+
+   MEASURED CAUSE: the badge on the Tipos de conteudo row is
+   `flex h-8 w-8 items-center justify-center rounded-lg` (ContentTypeList.tsx:290)
+   inside `div.flex.items-center.space-x-3`, WITHOUT shrink-0. A flex item without
+   shrink-0 doesn't stop at its declared width: its automatic minimum size is the
+   SMALLER of the specified width (32px) and the content's minimum, which here is the
+   16px svg. The box drops from 32 to 16 and the height stays at h-8's 32. Since the
+   text sibling has neither min-w-0 nor truncate, the badge is always the one that yields, and only
+   on the ROW with the longest text: hence two sizes in the same column.
+
+   MEASURED ON THE RUNNING PANEL (Chrome via CDP, route /content-types): at 320px and
+   390px six badges shrink to 16x32 (one of them 16.42x32) and at 1440px one shrinks to
+   22.13x32 while the others stay 32x32. With this rule all six go to 32x32.
+   Across the eight measured routes (root, Tipos de conteudo, Usuarios, Midia, Ajustes,
+   Conteudo, Comentarios, Menus), at 320, 390 and 1440, and with the user popover
+   OPEN, no other element changed size, the document's and main's scrollWidth stayed
+   the same and the popup's transform/position stayed intact.
+
+   CENSUS IN THE SHIPPED CODE: the admin bundle has 498 class strings with a square
+   pair (h-N together with w-N, or size-N), 42 with shrink-0 or flex-none and 456 without;
+   kumo adds 35, 7 of them with shrink-0.
+
+   WHY IT DOESN'T CATCH WHAT SHOULD STRETCH, in four safeguards:
+   1. `flex: 0 0 auto` only has an effect on a FLEX ITEM. On any other element the
+      property is ignored: Media's thumbnail, which today is a block inside
+      <td>, doesn't move a pixel, and the same goes for anything in position absolute.
+   2. `aspect-ratio` only kicks in when ONE of the two dimensions is automatic. Since the selector
+      requires the PAIR, these elements declare both width AND height, so the line is
+      a no-op today: it's the safety net for the day an upgrade removes one of the two.
+      Checked: of the 100 squares that are flex items on the swept routes, the 94
+      healthy ones didn't move a pixel.
+   3. An element meant to grow never declares a fixed width: in the admin and in kumo,
+      ZERO occurrences combine a square pair with grow, flex-1, flex-auto, basis-*,
+      w-full or h-full. The :not()s come for free, as an upgrade guarantee.
+   4. Scoped to main and to the Base UI portals. The side menu is left out on
+      purpose (its icons already have their own geometry in section [4], `flex: 0 0
+      var(--wp-icon)`, and two rules fighting over the same element is the start of the
+      next pitfall). The top bar is also left out, because the Header
+      lives OUTSIDE <main> (Shell.tsx:105-116): its avatar isn't reached, and
+      today it doesn't need to be, since the button wrapping it is w-max.
+
+   CASCADE: styles.css doesn't put !important on any utility involved (the
+   file's only !important is in @layer properties), so this unlayered sheet
+   wins. The measurement confirms it: the badge changes from 16 to 32 in the live DOM.
+
+   UPGRADE WATCH: the size ladder is a Tailwind utility, not a
+   contract. Swap `h-8 w-8` for a new size, and that screen's badge goes back to
+   shrinking (visual failure, doesn't break) and the fix is adding the pair to the :is().
+   The ladder below is TODAY's measurement, counted in the admin bundle PLUS kumo's.
+   Several (size-9 and size-10 on the icon-button, size-8.5 on the menu item) are already born
+   with shrink-0 and are therefore no-ops right now: they're in the ladder so it doesn't lie, and for
+   the day an upgrade removes shrink-0 from them.
+   ========================================================================== */
+html[data-mode] :is(main, [data-base-ui-portal]) :is(.flex, .inline-flex) > :is(
+    .h-2.w-2, .h-3.w-3, .h-3\.5.w-3\.5, .h-4.w-4, .h-5.w-5, .h-6.w-6,
+    .h-7.w-7, .h-8.w-8, .h-9.w-9, .h-10.w-10, .h-12.w-12, .h-16.w-16,
+    .size-2, .size-3, .size-3\.5, .size-4, .size-4\.5, .size-5, .size-6,
+    .size-6\.5, .size-7, .size-8\.5, .size-9, .size-10, .size-14
+  ):not(.grow):not(.flex-1):not(.flex-auto) {
+  flex: 0 0 auto;
+  aspect-ratio: 1 / 1;
+}
+
+/* [15b] AN ICON THAT COMES IN THROUGH THE `size` PROP, not through a class.
+   kumo's Phosphor and Loader turn the prop into a width/height ATTRIBUTE on the
+   <svg>, with no class at all, so [15a], which finds it by class, doesn't reach it.
+
+   CENSUS, counted in the 0.36 bundle itself: 285 svgs are DIRECT children of a flex row
+   inside main/portal. 251 already carry h-N/w-N/size-N and fall under [15a]. 34 are left,
+   and this rule exists for them:
+     28x kumo's Loader, on the "loading" rows of Ajustes, WordPress import,
+         user list and media picker. It sets width/height in an INLINE
+         style, which does NOT stop flex from squeezing it: an inline style doesn't
+         touch flex-shrink.
+      2x WarningCircle on the Redirecionamentos loop warning.
+      1x Hero illustration for Media's empty state, 1x Plus, 1x UserCircleIcon,
+      1x FileKindIcon, all in a fixed-size box: there the rule is just a safety net.
+   Real squeeze measured in only one spot: the 14px WarningCircle inside
+   `div.w-20.flex.items-center.justify-end.gap-1`.
+
+   WHAT THIS RULE DOESN'T COVER, on purpose: in Redirecionamentos the
+   `<ArrowNext size={14} />` lives in `div.w-8.text-center` and the empty-state
+   icon lives in `div.py-12.text-center`. Neither is a flex child, so
+   neither is a flex item and neither shrinks; what shrinks in that row is the
+   `div.w-8` itself. Worth remembering that a shrunk svg doesn't distort either: with the
+   default preserveAspectRatio (xMidYMid meet, which Phosphor doesn't override) the
+   artwork just gets smaller and stays centered.
+
+   Covering every svg that's a direct flex child is safe: the bundle sweep found no
+   svg with w-full, h-full, size-full, flex-1, grow or basis-* in that position. The
+   kumo svgs this rule also catches stay inert since they already have fixed width and
+   height: the Popover's and Tooltip's arrow (20x10), the Breadcrumbs separator and
+   the Link's external icon. The arrow is positioned by Floating UI on the PARENT element,
+   and here nothing writes transform, position, inset or overflow.
+
+   `flex-shrink` and not the `flex` shortcut: the shortcut also zeroes grow and rewrites
+   basis, and since this rule is unlayered it would silently override a `grow` or
+   `basis-*` that kumo might one day put on an svg.
+   No companion aspect-ratio rule: Phosphor's <svg> always carries both width AND
+   height (IconBase emits both), so aspect-ratio would never come into play, not today,
+   not in the imagined upgrade. It would be dead code. */
+html[data-mode] :is(main, [data-base-ui-portal]) :is(.flex, .inline-flex) > svg {
+  flex-shrink: 0;
+}
+
+/* --------------------------------------------------------------------------
+   [15c] OPTIONAL, AND SHIPPED DISABLED ON PURPOSE.
+
+   The fixed-width columns on the TWO Redirecionamentos lists (the rules
+   list and the 404s panel) are flex items without shrink-0. MEASURED: `.flex-1{flex:1}`
+   is grow 1, shrink 1, basis 0%, and the shrinkage is distributed by the factor
+   scaled by the BASIS, so basis 0 has weight 0: the truncate columns give up
+   nothing and the whole squeeze falls on the fixed columns from the very first pixel of
+   deficit. Each one stops at its own min-content, which in the HEADER is smaller than in the
+   ROW, and the result is columns out of alignment.
+
+   WHY IT'S LEFT COMMENTED OUT: locking the shrinkage without containing the overflow trades
+   "squeezed columns" for LEAKAGE, because the container arrives without overflow-x-auto
+   and block [12] paints the background and border shadow ON IT. That's why the fix comes
+   bundled with `overflow-x: auto`, and that means accepting HORIZONTAL SCROLLING inside
+   the card at phone width (the row's minimum goes up to about 664px).
+   `bun run gate` only runs the 5 public routes and NEVER opens /_emdash/admin, so
+   it's no safety net here.
+   TO ENABLE: check it by eye, at 320, 390 and 768, inside the panel, and only then
+   uncomment the whole block. If the studio doesn't want a horizontal bar inside the
+   panel, the right call is to DISCARD the item: the original defect is a cosmetic
+   drift in the header at narrow widths.
+
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50.text-kumo-subtle.flex.items-center.gap-4) {
+  overflow-x: auto;
+}
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50.text-kumo-subtle.flex.items-center.gap-4)
+  .flex.items-center.gap-4 {
+  min-width: min-content;
+}
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50.text-kumo-subtle.flex.items-center.gap-4)
+  .flex.items-center.gap-4 > :is(.w-8, .w-14, .w-16, .w-20, .w-32) {
+  flex: 0 0 auto;
+}
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50.text-kumo-subtle.flex.items-center.gap-4)
+  .flex.items-center.gap-4 > .flex-1 {
+  min-width: 7rem;
+}
+
+   The anchor is narrower than block [12]'s on purpose: just
+   `:has(> .border-b.bg-kumo-tint/50)` would reach THREE containers, and the
+   Taxonomias one has a different set of columns (w-16 / w-24). Requiring the band
+   itself to be the `flex items-center gap-4` AND `text-kumo-subtle` row leaves
+   exactly the two redirect lists. The 404 panel's `.w-32`
+   MUST be in the set: leaving it out would make it the only elastic column,
+   absorbing 100% of the deficit, which would be WORSE than today. The 7rem floor exists
+   because, with basis 0 and negative free space, the URL columns would end up at exactly
+   0px (a defect that already happens today, below 440px of usable width).
+   -------------------------------------------------------------------------- */
+
+
+/* ==========================================================================
+   [16] USER MENU (replaces parts of block [8])
+   ========================================================================== */
+
+/* [16a] REPLACES the two [8b] rules on lines 1200 to 1206. Paste the WHOLE
+   pair: `translate` is a single property, so you can't write the X axis
+   in one rule and the Y in another, the second would erase the first.
+
+   Y AXIS, already known: kumo asks for `sideOffset: 8` (popover.tsx:189).
+   X AXIS, new, and it gives back the 5px that Base UI's `shift()` steals. kumo doesn't
+   pass `collisionPadding`, so the Positioner falls back to the default of 5
+   (vendor-base-ui:4423); with side="bottom" that default becomes
+   {top:6, right:5, bottom:5, left:5} and shift runs with mainAxis on. Since the
+   skin already zeroes the header's padding (line 181) and pins it to left/right 0 on
+   desktop (262-266), the popup's right border is born exactly on the clipping
+   border: detectOverflow.right = 5 > 0, and Floating UI subtracts 5px from X. The
+   limitShift would only kick in above 15px, so the 5px pass through whole.
+   MEASURED by simulating the real middleware chain across three viewports (1440x900,
+   a short window forcing a flip, and 320px): shift = {x:-5} in all three, a 5px gap on
+   both sides. The value is the same on bottom and on top because the padding
+   calculation comes from the `side` PROP, not from the side flip resolved to.
+
+   Nothing here writes transform: `translate` is independent, composes BEFORE it, doesn't
+   enter the popup's `transition-[transform,scale,opacity]` (applies instantly) and
+   Floating UI measures the POSITIONER, the parent, whose box doesn't change when the child
+   translates. The popup also doesn't use its own transform: Tailwind v4 compiles
+   `scale-90` into the standalone `scale` property.
+
+   CORNER: which one touches the bar depends on the side. In `bottom` (the normal case) it touches the
+   TOP border; in `top` (flip due to lack of space) it touches the BOTTOM one.
+   `!important` IS MANDATORY, not decoration: line 1182 declares
+   `border-radius: var(--wp-radius) !important` and IMPORTANCE is evaluated BEFORE
+   specificity. Without it these declarations lose to 1182 even at
+   (0,5,2) against (0,4,2), and the rule becomes a no-op (measured: 4px on all four
+   corners). The 1182 shorthand still applies as a fallback for lateral data-side
+   (left/right), which IS reachable: Base UI uses fallbackAxisSide 'end', so in a
+   window too short the menu goes sideways, and there no border touches the
+   bar, so all four corners are the right call.
+
+   WATCH: if a kumo upgrade passes an explicit `collisionPadding`, only the
+   fallback number changes. In an RTL interface align=end flips to the left and the sign
+   inverts (--wp-popover-inset: -5px); the panel is pt-BR, so it applies today. Safari
+   without `translate` support falls back to the 8px-plus-5px gap: clean degradation. */
+html[data-mode] [role="dialog"].kumo-popover-popup[data-side="bottom"]:has(a[href*="/settings/security"]) {
+  translate: var(--wp-popover-inset, 5px) calc(var(--wp-popover-offset, 8px) * -1);
+  border-radius: 0 0 var(--wp-radius) var(--wp-radius) !important;
+}
+
+html[data-mode] [role="dialog"].kumo-popover-popup[data-side="top"]:has(a[href*="/settings/security"]) {
+  translate: var(--wp-popover-inset, 5px) var(--wp-popover-offset, 8px);
+  border-radius: var(--wp-radius) var(--wp-radius) 0 0 !important;
+}
+
+/* [16b] REPLACES line 1183 (`box-shadow: 0 3px 5px rgba(0,0,0,.2)`).
+   That one was a literal copy from wp-admin: a single, short layer, made for a
+   LIGHT card over a light gray. With a #1d2327 popup over the #f0f0f1 canvas it barely
+   shows up, because the first shadow pixels land right next to an element that's already
+   dark: what makes the menu float here is REACH, not opacity.
+   Four layers, from near to far:
+     1. contact    seals the border on the light background, stops a hard clipping edge
+     2. penumbra   gives thickness to the card
+     3. ambient    the mass that separates the menu from the page
+     4. diffuse    the long reach that gives height, low alpha because the radius is large
+   The negative spread on the last two SHRINKS the lateral leak and pushes the mass
+   downward (doesn't eliminate it: they still leak 5px and 6px on each side).
+   Reach upward is practically nil (layer 2: 0px; 3: -7px; 4: -22px), so
+   nothing dirties the dark bar above the flush menu.
+   DON'T ADD BACK A 1px LAYER: this popup's border is `outline outline-kumo-fill`
+   (popover.tsx:212), a standalone property, not a ring inside box-shadow like
+   the content popups in block [8e]. It survives this declaration, and its
+   color already comes from line 1181.
+   The ink is rgba(29,35,39,...), --wp-ink itself: a shadow tinted with the surface's
+   color sits better on the page's gray than pure black. The shadow isn't in
+   the popup's `transition-[transform,scale,opacity]`, so it doesn't animate.
+   If it gets too heavy, lower the alphas on layers 3 and 4 (that's where the sense of height
+   lives); if it gets too weak, raise layer 4's RADIUS, never layer 1's alpha. */
+html[data-mode] [role="dialog"].kumo-popover-popup:has(a[href*="/settings/security"]) {
+  box-shadow:
+    0 1px 2px        rgba(29, 35, 39, .16),
+    0 4px 8px        rgba(29, 35, 39, .12),
+    0 12px 22px -6px  rgba(29, 35, 39, .14),
+    0 28px 44px -16px rgba(29, 35, 39, .20) !important;
+}
+
+
+/* ==========================================================================
+   [17] SIDE BAR WITH NO MOTION
+   The owner asked for two things that coexist: MORE hover interpolation in the content
+   (block [19]) and ZERO animation on the bar. Everything here is scoped to the menu, and
+   `transition-property` isn't inherited, so zeroing a parent never reaches the
+   content.
+   ========================================================================== */
+
+/* [17a] THE ICON DOESN'T SHIFT ON HOVER, it only changes color.
+   The movement was OURS (translateX(1px), lines 569-570), fed by the
+   transition on lines 555-556. There's no competitor on kumo's side: sidebar.tsx
+   only has `group-hover/menu-button:opacity-100` on the chevron (pure opacity), and its
+   `translate-x-[-3px]` on line 1136 is for the COLLAPSED state, already neutralized
+   by lines 383-388.
+   IDEAL: edit it in place (R3.4). These two rules do the same on top: the same
+   selector declared later wins, no !important needed.
+   MAINTENANCE: the transition list now only has `color`. Anyone wanting to animate the
+   icon again needs to re-add the property to the list, otherwise the transform
+   shows up abrupt. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] svg {
+  -webkit-transition: color var(--wp-fast) ease;
+  transition: color var(--wp-fast) ease;
+}
+
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"]:hover svg {
+  color: var(--wp-accent-soft);
+  -webkit-transform: none;
+  transform: none;
+}
+
+/* [17b] COLLAPSE AND EXPAND WITH NO INTERPOLATION.
+   kumo does ALL the menu's transitions with
+   `duration-(--sidebar-animation-duration)` and writes that variable INLINE on the
+   wrapper, at 250ms (sidebar.tsx:376, SIDEBAR_ANIMATION_DURATION_MS = 250, curve
+   cubic-bezier(0.77,0,0.175,1)). !important in an author sheet with NO layer beats the
+   style attribute: measured in Chromium, the wrapper resolves to 0ms with the inline saying
+   250ms, and the utility .duration-(--sidebar-animation-duration), which lives in
+   @layer utilities with no !important, computes transition-duration 0s and
+   transition-property none.
+
+   One line zeroes all 13 consumers: aside width (659), content-container width
+   (694), footer width and padding (847), viewport padding (794), the item's
+   inner block translate (1136), the trigger icon's little stroke (1512), header
+   padding and the title's grid-cols-[1fr] to [0fr] collapse (admin/Sidebar.tsx
+   373 and 384), PLUS the mobile drawer (nav with transition-transform, 606) and the mobile
+   backdrop's fade (575). DECLARED CONSEQUENCE: on mobile the menu now opens
+   without sliding.
+   <main> has no transition of its own (Shell.tsx: `flex-1 overflow-y-auto`), so it
+   follows the aside and becomes instant along with it. The collapsed item's tooltip exits through a
+   portal in body, OUTSIDE the wrapper, and keeps whatever section [18] dictates.
+   Doesn't leave a stuck state: there's no transitionend listener in sidebar.tsx, and
+   `resizable` and `peekable` are false by default and the Shell doesn't pass either
+   one. The panel also doesn't use MenuSub, Collapsible or SlidingViews, so
+   zeroing the variable doesn't kill any accordion that exists today. If one ever exists, the
+   way out is to give the duration back only on that node.
+   This selector already exists on line 142 for the same reason (EmDash writes it inline
+   on the wrapper): if editing by hand, merge the declaration there. */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) {
+  --sidebar-animation-duration: 0ms !important;
+}
+
+/* Safety net, in case an upgrade swaps the variable for a hand-written value. Lists
+   ONLY the four nodes whose geometry actually moves and that this sheet
+   doesn't already immobilize some other way: aside and content-container animate width,
+   the footer animates width (its padding is already 0 !important on 491) and the
+   trigger's little stroke moves from translate-x-px to translate-x-[10.5px].
+   LEFT OUT on purpose:
+   . [data-sidebar="header"]: padding already pinned at 0 8px !important (293).
+   . [data-sidebar="menu-button"] > div: translate and transform already pinned at
+     none !important (385-387).
+   . [data-sidebar="content"] > div: padding already pinned at 0 !important (348), and
+     this selector would also catch Base UI's Scrollbar, which is the SECOND div child
+     of ScrollArea.Root and has its own 150ms fade that doesn't take part in the
+     collapse.
+   . [data-sidebar="menu-button"] and [data-sidebar="trigger"] itself: both have
+     OUR color transition on hover (379-380 and 510-511), which the owner wants kept. */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) > :is(aside,nav).emdash-sidebar,
+html[data-mode] :is(aside,nav).emdash-sidebar > [data-sidebar="content-container"],
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"],
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"] svg path {
+  -webkit-transition-property: none !important;
+  transition-property: none !important;
+}
+
+/* [17c] COLLAPSED: THE ICON DOESN'T MOVE, AND THE BAR SHRINKS FROM 57px TO 36px.
+
+   OPEN-STATE MEASUREMENT: the scroll viewport has zeroed padding (347-351), and
+   neither group, menu, nor menu-item puts padding in kumo (`p-0`, only `gap-y-px`).
+   All the breathing room comes from the item, on line 372. So the icon's left border sits
+   8px from the menu's border.
+   COLLAPSED TODAY: a 57px bar (SIDEBAR_WIDTH_ICON, sidebar.tsx:93, written
+   inline on the wrapper at 375) with the item centered, so the icon lands at
+   (57 - 20) / 2 = 18.5px. A 10.5px jump on every click.
+   NEW MATH: 8px padding + 20px icon (--wp-icon) + 8px on the other side =
+   36px, which is wp-admin's collapsed #adminmenu. With the item aligned left, the
+   jump becomes ZERO.
+
+   The new token goes into html:root[data-mode] and not html[data-mode]: (0,1,1)
+   would lose to block [0] on line 20 and the declaration would become dead letter. In
+   calc() from --wp-icon so the bar keeps up on its own if the icon changes.
+   IDEAL: move the token line to block [0], next to line 47, which is where
+   per-client changes happen.
+
+   DOESN'T LEAK INTO THE EDITOR: the right panel is a SECOND Sidebar.Provider
+   (ContentEditor.tsx:667) and is immune for three independent reasons: its wrapper
+   doesn't match :has(.emdash-sidebar), it writes its own --sidebar-width-icon
+   inline (a declaration on the element beats inheritance) and it's collapsible="offcanvas", which
+   doesn't even use the variable.
+   TOUCH TARGET: the collapsed item is 36 by 36, above the gate's 24px. The label
+   stays accessible via the tooltip, because `peekable` is false by default and
+   kumo's condition is `state === "collapsed" && !peekable`.
+   The `border-r` kumo puts on the footer when collapsing doesn't need to go: measured,
+   a right border doesn't move an icon anchored to the left (a 36px footer with
+   border-box, a 35px content box, the icon still sits at 8px and
+   8 + 20 = 28 < 35, doesn't even clip). */
+html:root[data-mode] {
+  --wp-menu-w-icon: calc(8px + var(--wp-icon) + 8px);   /* 36px today */
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar) {
+  --sidebar-width-icon: var(--wp-menu-w-icon) !important;
+}
+
+/* padding-LEFT still comes from line 372, which applies in both states: that's what
+   stops the icon from moving. Only padding-RIGHT is readjusted here, because the
+   16px in [17d] exist to keep the label away from the active item's little arrow, and in the
+   collapsed state there's no label or arrow (line 438 hides the ::after). */
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar)[data-state="collapsed"] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] {
+  justify-content: flex-start !important;
+  padding-right: 8px !important;
+}
+
+html[data-mode] [data-sidebar-wrapper]:has(.emdash-sidebar)[data-state="collapsed"] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] > div {
+  flex: 0 0 auto !important;
+  justify-content: flex-start !important;
+}
+
+/* the "Recolher menu" button follows the same ruler. Anchored on aria-expanded, which is
+   boolean (sidebar.tsx:1544) and doesn't fall into the third "peeking" state, same as the
+   criterion already adopted in section [4B]. The padding comes from line 500. The icon here is the
+   ::before with a mask from [4B] (kumo's <svg> is hidden on 1718), also at
+   20px: same geometry, same math. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="footer"] [data-sidebar="trigger"][aria-expanded="false"] {
+  justify-content: flex-start !important;
+}
+
+/* [17d] BREATHING ROOM ON THE ITEM'S RIGHT.
+   Today padding-right is 8px and the active item's little arrow occupies exactly those
+   8px: the ::after on line 410 is a 16x16 box (border 8px) anchored to
+   right: 0, and its visible part is the triangle from the rightmost 8px. The text
+   ends right at the tip, zero slack. With 16px, 8px is left between the end of the text and
+   the arrow's tip, and the same breathing room against the border on items with no arrow.
+   THE ARROW DOESN'T MOVE: `right: 0` anchors to the padding-box, and padding doesn't shift
+   the padding-box.
+   ACCEPTED COST: the label drops from 186px to 178px with the menu at 230px, about
+   one character at 14px. The compensation (menu at 240px) is left out because this
+   round asked for a narrower bar, and the note is in R3.5.
+   The clickable area doesn't shrink: padding is part of the button's area. The submenu item's
+   chevron (`ml-auto`) and the MenuBadge get the same breathing room, which is an improvement.
+   IDEAL: edit line 372 (R3.5). This rule does the same on top. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="menu-button"] {
+  padding: 0 16px 0 8px !important;
+}
+
+
+/* ==========================================================================
+   [18] COLLAPSED MENU: THE LABEL BECOMES A TAB STUCK TO THE ICON (wp-admin)
+
+   The label is a kumo Tooltip (Base UI) PORTALED into <body>, so it's not a
+   descendant of the menu and no ancestor reaches it. The anchor has two halves:
+     :has([data-sidebar="menu-button"][data-popup-open])
+        whoever opened the popup is a menu item. Without this guard the rule would catch
+        ANY popup with data-side="right", and Base UI produces that value on
+        its own: its default is fallbackAxisSideDirection "end"
+        (internals/useAnchorPositioning.js:183), so a side="bottom" tooltip from the
+        editor bar with no room above or below tries the perpendicular axis
+        and lands on "right". The guard doesn't flicker on close: with no animation, Base UI
+        does a flushSync unmount before paint (useAnimationsFinished.js:70-85).
+     .kumo-tooltip-popup[data-side="right"]
+        a class kumo writes by hand on the Popup plus the attribute Base UI
+        emits (TooltipPopup.js puts side and align in the state). The second line of each
+        pair targets the same thing via the Positioner, in case the library moves data-side up a level.
+   `side="right"` is hardcoded in Sidebar.MenuButton (sidebar.tsx:1225) and
+   EmDash only passes `tooltip` when `state === "collapsed"`, with peekable false:
+   there's no empty popup with the menu open.
+
+   Positioning is still Floating UI's job: no rule here writes
+   transform, position, inset or overflow. The only displacement is `translate`, and
+   it exists to undo kumo's `sideOffset: 10` (Base UI applies
+   offset({mainAxis}) without adding the arrow), which sticks the tab to the rail's border.
+
+   MEASURED IN THE BROWSER with styles.css and this sheet loaded: Positioner at
+   x=57, popup painted at x=47, 36px height same as the item's, text 9.4px from the top
+   and 10.1px from the bottom. Contrast 5.78:1 on normal (#90b5d8 on #303539) and 5.17:1
+   on active (#ffffff on #2271b1), both AA.
+
+   MEASURED PITFALL, and it's the reason for the `flex-direction` line: kumo's Popup
+   carries `flex-col` together with `flex`. Without undoing that, `align-items: center`
+   centers on the HORIZONTAL axis and the label sticks to the top, with 19px left over
+   at the bottom. The tab would ship looking fixed and come out crooked.
+
+   WHAT HAS NO CSS FIX, and is stated here: the 600ms delay on the first
+   pass (Base UI's OPEN_DELAY, and neither kumo nor EmDash passes `delay`; inside
+   the TooltipProvider group the following items open instantly), and the tab not
+   being clickable, because it's a popup, not a link.
+   WATCH: the -10px is tied to kumo's sideOffset. If the library changes the value,
+   a gap or an overlap comes back (visible, doesn't break). If the tooltip needs to
+   flip sides for lack of room, data-side stops being "right" and the skin
+   simply stops applying, falling back to kumo's balloon: graceful failure.
+   ========================================================================== */
+
+/* [18a] THE TRANSITION DIES OUTSIDE THE GUARD, AND THIS POSITION IS THE FIX.
+   MEASURED DEFECT (round 3, three tabs stuck on screen while sweeping down the column): the
+   `transition: none` line lived INSIDE the block guarded by
+   :has([data-sidebar="menu-button"][data-popup-open]). A global guard means
+   it TURNS ITSELF ON AND OFF, and Base UI unmounts the popup by waiting for
+   its own `getAnimations()` (popupStoreUtils.js:448 calls
+   useOpenChangeComplete with ref = popupRef, which lands in useAnimationsFinished.js:85,
+   `Promise.all(getAnimations().map(a => a.finished))`).
+   The sequence that gets stuck, timed in the browser with getAnimations instrumented:
+     1. item A closes, Base UI removes data-popup-open from trigger A;
+     2. at that instant NO trigger has data-popup-open, the guard drops, this sheet
+        stops applying to popup A and kumo's transition comes back to life;
+     3. Base UI looks at popup A and sees TWO transitions running (measured: opacity and
+        scale, computed transition "transform .15s, scale .15s", not "none"),
+        so it waits for both `finished` promises;
+     4. item B opens 30ms later, data-popup-open reappears, the guard rises again
+        and reimposes `transition: none` on popup A too, because the selector is global;
+     5. `transition: none` CANCELS both transitions, `finished` rejects, and
+        popup A never unmounts. Every icon in the sweep leaves one more stuck.
+   COUNT: a sweep of 5 icons, 900ms pause on each, 1.5s idle at the end.
+   Before: 3 to 4 popups stuck with data-closed and data-ending-style. With this line
+   outside the guard, ZERO.
+   The native escape path EXISTS and is the right one: with no animation at all,
+   `Promise.all([])` resolves instantly and the unmount happens via flushSync before paint. What
+   was missing was guaranteeing the popup is ALWAYS animation-free, not only
+   while the guard is standing. That's why the line doesn't go back to being a 1ms
+   transition: the problem was never the duration, it was the toggling.
+   SCOPE: only the tooltip popup with data-side "right", the same set the skin
+   already paints. The declared cost is that a tooltip from another component that lands on
+   "right" for lack of space loses the 150ms fade. Trading animation for nothing is the
+   direction of this round, so the cost is aligned with the request. */
+html[data-mode] [data-base-ui-portal] .kumo-tooltip-popup[data-side="right"],
+html[data-mode] [data-base-ui-portal] [data-side="right"] > .kumo-tooltip-popup {
+  transition: none !important;
+}
+
+/* [18b] THE PAINTING STAYS GUARDED, BUT NOW TIED TO THE OPEN POPUP.
+   `[data-open]` on the popup itself is the only bridge that exists: MEASURED in the browser,
+   the popup has no id, no data-anchor, no attribute at all pointing back to the
+   trigger, and the trigger (id="base-ui-_r_l_", data-base-ui-tooltip-trigger) isn't
+   referenced by anything on the portal side. A real bridge between EACH tab and
+   ITS button doesn't exist in CSS.
+   What `[data-open]` solves: Base UI only leaves one popup with data-open at a time,
+   so the dark painting stops leaking onto the tabs that are closing. Without it,
+   the guard is global and paints EVERY tab in the portal, which is exactly the screenshot of
+   three dark tabs stacked up. With [18a] in place there's only ever one tab at a time, and
+   this line is the belt: if one is ever left over, it comes out without the skin instead of becoming
+   a second dark tab on screen. */
+html[data-mode]:has([data-sidebar="menu-button"][data-popup-open]) [data-base-ui-portal] .kumo-tooltip-popup[data-side="right"][data-open],
+html[data-mode]:has([data-sidebar="menu-button"][data-popup-open]) [data-base-ui-portal] [data-side="right"] > .kumo-tooltip-popup[data-open] {
+  translate: -10px 0 !important;
+  display: flex !important;
+  flex-direction: row !important;   /* undoes kumo's flex-col */
+  align-items: center !important;   /* only centers vertically after the row */
+  justify-content: flex-start !important;
+  min-height: 36px !important;      /* the same height as the menu item */
+  padding: 0 12px !important;
+  background: var(--wp-ink-hover) !important;
+  color: var(--wp-accent-soft) !important;
+  font-family: var(--wp-font) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 1.3 !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  /* zero animation, which is the bar's side of the deal this round. The `transition` line
+     that used to be HERE moved to block [18a], outside the guard: inside it, it turned on and
+     off and kept the popup mounted forever (the measurement is up above).
+     kumo's entry `scale-90` compiles into the standalone `scale` property,
+     so it can be killed without touching transform. */
+  scale: 1 !important;
+  opacity: 1 !important;
+}
+
+/* the beak doesn't exist in wp-admin. Base UI's Arrow is the aria-hidden child.
+   Same `[data-open]` as [18b]: the beak only disappears on the tab that's open, so the
+   pair of rules doesn't drift apart if a closing popup is ever left on screen. */
+html[data-mode]:has([data-sidebar="menu-button"][data-popup-open]) [data-base-ui-portal] .kumo-tooltip-popup[data-side="right"][data-open] > [aria-hidden="true"],
+html[data-mode]:has([data-sidebar="menu-button"][data-popup-open]) [data-base-ui-portal] [data-side="right"] > .kumo-tooltip-popup[data-open] > [aria-hidden="true"] {
+  display: none !important;
+}
+
+/* current item: in wp-admin the active item's tab comes out blue, not gray. The popup is in the
+   portal, far from the item, so the bridge is the TRIGGER: Base UI puts data-popup-open
+   on the <a> itself while the label is open, and only one stays open at a time.
+   The popup's `[data-open]` closes the other end of the bridge: without it, an active item with
+   its label opening would paint ANY tab in the portal blue, including ones that
+   were closing. */
+html[data-mode]:has([data-sidebar="menu-button"][data-active="true"][data-popup-open]) [data-base-ui-portal] .kumo-tooltip-popup[data-side="right"][data-open],
+html[data-mode]:has([data-sidebar="menu-button"][data-active="true"][data-popup-open]) [data-base-ui-portal] [data-side="right"] > .kumo-tooltip-popup[data-open] {
+  background: var(--wp-accent) !important;
+  color: var(--wp-accent-contrast) !important;
+}
+
+
+/* ==========================================================================
+   [19] HOVER INTERPOLATION IN THE CONTENT
+   The other side of this round's request. Everything scoped to `main`, which is a SIBLING of
+   the side bar in the Shell (Sidebar.Provider > [SidebarNav, div.flex-1 > [Header,
+   main]]): disjoint subtrees, so nothing here reaches the menu.
+   No rule uses `transition: all`: an unenumerated property is a property
+   that a kumo upgrade could start animating without anyone deciding to.
+   ========================================================================== */
+
+/* [19a] WHERE NOBODY DECLARED ONE.
+   MEASURED in the bundle: kumo 2.6.0 is inconsistent. Of the six Button variants, only
+   "outline" carries `transition-colors`; the DEFAULT one ("secondary": `bg-kumo-base ...
+   not-disabled:hover:bg-kumo-tint`) and "ghost" change color on hover with no
+   transition at all. The same goes for SettingsNavRow (index.js:35998), which
+   arrives with `hover:bg-kumo-tint` and zero transition class. A className string
+   sweep: 112 carry `hover:bg|text|border-kumo`, and 100 of them have no
+   transition whatsoever.
+
+   ANCHOR = the very CLASS that declares the hover, not the component. Tailwind v4
+   keeps the literal name in the attribute, so `hover:bg-kumo` as a substring matches
+   exactly whoever changes color on hover, and it also catches `group-hover:`,
+   `not-disabled:hover:` and `aria-selected:hover:`, which are the same case.
+
+   THREE GUARDS:
+   1. `:not([class*="transition"])` = only where Tailwind hasn't already declared one.
+      Avoids replacing Base UI's `transition-[transform,scale,opacity]` and the
+      outline variant's `transition-colors`.
+   2. `:not(.emdash-sidebar *)` = an upgrade safety net, since the `main` scope alone
+      already makes it impossible to reach the bar.
+   3. `:where()` on the WHOLE match, which counts as zero specificity. Without it the
+      rule would weigh (0,4,2) and would RUN OVER the transitions this skin already declares,
+      because `transition` is a shorthand: whichever one wins REPLACES the whole list, doesn't add to it.
+      The victims were real and measured: lines 610, 629 and 1649 (buttons next to the
+      h1, which animate background-color, border-color, color, box-shadow and transform,
+      and are default-variant Buttons, meaning they match `hover:bg-kumo`), 737
+      (card), 728 (links) and 811 (table row). Without :where(), the "Novo"
+      button would lose the list's box-shadow and transform and, since :hover keeps
+      applying translateY(-1px), it would start SNAP-JUMPING 1px. The opposite of what was asked.
+      With :where() the rule weighs (0,1,2), loses to all of them and only paints what
+      nobody else declared.
+
+   REACH, stated plainly: NO POPUP GETS IN. The user menu is a Popover with a
+   portal in body, so outside `main`, and stays without interpolation, along with the toast and
+   the side menu's popup. This is deliberate: widening the scope to body would touch
+   the popups' entry and exit animation.
+   KNOWN RESIDUE: at (0,1,2) rule 728 (`main a`) still wins on
+   links, and it lists only color and background-color. So an <a> with
+   `hover:border-kumo-*` (the editor's index) keeps a jerky border. Fixing that means
+   editing 728, which is a different rule and deserves its own round. */
+html[data-mode] main :where(
+  [class*="hover:bg-kumo"],
+  [class*="hover:text-kumo"],
+  [class*="hover:border-kumo"]
+):where(:not([class*="transition"])):where(:not(.emdash-sidebar *)) {
+  -webkit-transition:
+    background-color var(--wp-fast) ease,
+    color            var(--wp-fast) ease,
+    border-color     var(--wp-fast) ease;
+  transition:
+    background-color var(--wp-fast) ease,
+    color            var(--wp-fast) ease,
+    border-color     var(--wp-fast) ease;
+}
+
+/* [19b] THE SHADOW FOR THE OTHER TWO FAMILIES IN BLOCK [7].
+   The hover on line 884 lifts the shadow on THREE families, but only the first (the
+   panel card) has a transition, on 740. The table frame (7 listings) and the
+   settings block (10 Ajustes screens) used to swap all four box-shadow layers at
+   once: a snap, not a lift. That's what the owner complained about.
+   DURATION: --wp-normal with --wp-ease, identical to line 740, so the listing rises
+   at the SAME pace as the widget he already approved. Elevation is a bigger visual delta
+   than a background tone, so it can take the slower curve without feeling sluggish.
+
+   The first four guards are a faithful copy of lines 885-886 and aren't decoration:
+   they exclude the marketplace skeleton, the user detail skeleton, the editor's
+   floating bar and the plugin consent dialog.
+   FIFTH GUARD, `:not([class*="transition"])`: `transition` is a SHORTHAND and resets
+   transition-property. Tailwind's transition-* utilities live in
+   @layer utilities WITHOUT !important, and a normal declaration OUTSIDE a layer beats a normal
+   one INSIDE a layer. Without this guard the rule was ERASING the own transition of nine
+   elements, among them the editor's HTML block (HtmlBlockNode.tsx:101) and plugin block
+   (PluginBlockNode.tsx:281), which animate the selected state's background with
+   `transition-colors`: it would trade a shadow snap in the listing for a color snap
+   in the editor. The guard fails safe (whoever already has their own transition keeps it
+   as is) and loses no target: the 7 frames and the 10 settings blocks
+   don't carry "transition" in their class string.
+   No `transform`: these two boxes don't lift, only the shadow changes (line 895
+   is only for the card). */
+html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):not([class*="transition"]),
+html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):not([class*="transition"]) {
+  -webkit-transition: box-shadow var(--wp-normal) var(--wp-ease);
+  transition: box-shadow var(--wp-normal) var(--wp-ease);
+}
+
+/* [19c] SAME FIX FOR THE <div>-BASED LISTING IN BLOCK [12] (Taxonomias and the
+   two Redirecionamentos ones). Without this they'd end up being the only listings
+   that still snap after the fix, and the divergence would just move somewhere else. Same
+   pace as [19b]. The only value that changes on line 1567's :hover is box-shadow,
+   so the list is exact, no leftovers.
+   None of the three containers carries a transition-* class, and there's no
+   `!transition*` utility in styles.css: a normal, unlayered declaration wins on its own,
+   with no !important. */
+html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50) {
+  -webkit-transition: box-shadow var(--wp-normal) var(--wp-ease);
+  transition: box-shadow var(--wp-normal) var(--wp-ease);
+}
+
+/* [19d] EDITOR'S COLLAPSIBLE HEADER (Sumario, Revisoes).
+   Matches exactly TWO buttons: the DocumentOutline's and RevisionHistory's
+   Collapsible.Trigger, the only two sections created with `disclosure: true`
+   (index.js:10385 and 10400). The drag handle on the same section does NOT get in: dnd-kit
+   only emits aria-describedby, aria-disabled, aria-pressed and
+   aria-roledescription, never aria-expanded. The other six sections come out with
+   data-disclosure="false".
+   WHY ITS OWN RULE AND NOT the generic [19a]: the button IS inside `main` and
+   kumo's ghost variant already puts `hover:bg-kumo-tint` on it, so the generic rule could
+   reach it. This rule exists to win by specificity and LOCK the property
+   list. The hover that applies here is line 1448's, and the base on 1424 has no
+   transition at all.
+   `border-color` is included because the band has a border-bottom and an upgrade that starts
+   swapping it on hover would already arrive interpolated. NO `width` at all: line 1425 writes
+   `width: calc(100% + 32px) !important` to beat EmDash's inline style, and animating
+   that would wobble the whole band. Also no transform or position: dnd-kit
+   writes an inline transform on the SECTION during the drag.
+   No !important on purpose: a normal, unlayered rule beats a normal one in a layer, and the
+   only `transition` with !important in styles.css lives in `.transition-none!`,
+   `.t-text-swap` and `[data-sidebar-popup]`, none of which this button carries. */
+html[data-mode] section[data-disclosure="true"] button[aria-expanded] {
+  -webkit-transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease;
+}
+
+/* [19e] WHOEVER TURNED OFF SYSTEM ANIMATIONS.
+   A COLOR change isn't motion and stays: it's what makes hover legible. What
+   bothers someone who asked for less animation is the four-layer shadow at .28s, so
+   that one (and any transform) becomes instant, and only that one.
+   WHY THE WHOLE LIST AND NOT `transition: none`: `none` is a blanket switch and
+   would also erase the color transition. Measured: excluding the shadow-lg
+   and animate-pulse guards, [7]'s selectors match 41 class strings and 8 already carry
+   EmDash's OWN transition (transition-colors on the theme card, the plugin
+   card and the dropzone that gets a ring on isOver; transition-all and
+   transition-opacity on the Media cards). They live in @layer utilities without
+   !important, so the erasure would actually happen.
+   ORDER MATTERS: the selectors repeat [19b]'s and [19c]'s, so this block has
+   to stay AFTER them, as it does. The `:hover` is here because, if the
+   transition is ever also declared on the hover rule, the base-only version would cover the
+   exit and not the entry.
+   The block on line 1009 still applies to the entry animations and to the
+   card's transform. */
+@media (prefers-reduced-motion: reduce) {
+  html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+  html[data-mode] main div:has(> table):not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
+  html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]),
+  html[data-mode] main div.border.bg-kumo-base:not([class*="shadow-lg"]):not([class*="animate-pulse"]):not(.animate-pulse *):not([data-emdash-inline-bubble-menu]):hover,
+  html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50),
+  html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50):hover {
+    -webkit-transition:
+      background-color var(--wp-fast) ease,
+      border-color var(--wp-fast) ease,
+      color var(--wp-fast) ease,
+      opacity var(--wp-fast) ease,
+      box-shadow 0s,
+      -webkit-transform 0s;
+    transition:
+      background-color var(--wp-fast) ease,
+      border-color var(--wp-fast) ease,
+      color var(--wp-fast) ease,
+      opacity var(--wp-fast) ease,
+      box-shadow 0s,
+      transform 0s;
+  }
+}
+
+/* ==========================================================================
+   [20] THE SITE LOGO DOESN'T MOVE WHEN THE BAR COLLAPSES
+   ========================================================================== */
+
+/* MEASURED in dev at 1400px, the <img> inside [data-sidebar="header"]:
+   expanded  left = 8px  (MENU icon right below: 8px)
+   collapsed left = 5px  (MENU icon right below: 8px)
+   In other words, round 3 stopped the menu icon in both states and only the
+   header was left out of square, 3px to the left.
+
+   CULPRIT, and it's not ours: kumo puts the utility
+   `group-data-[state=collapsed]/sidebar:-translate-x-[3px]` on the header's <a> (plus its
+   sibling `rtl:group-data-[state=collapsed]/sidebar:translate-x-[3px]`). In Tailwind v4
+   that utility writes the `translate` property, not `transform`: the computed value
+   is `translate: -3px` when collapsed and `none` when expanded. The 3px is exactly the
+   measured difference, and that's why the <a> already appears shifted without any ancestor
+   having changed its box.
+
+   PADDING DOESN'T TAKE PART, checked element by element all the way to the <aside>:
+   . [data-sidebar="header"]: 8px in both states, pinned on line 293 on top
+     of kumo's px-[11px] / px-3.5 (which does change with the state).
+   . the <a> itself: 0, pinned on line 303 on top of ps-2.5.
+   . content-container and aside: no padding-left.
+   Sanity check: if the header's padding had been left out of round 3,
+   the jump would have been 3 + 3 = 6px, not 3px.
+
+   FIX IN THE SPIRIT OF ROUND 3: a SINGLE value that applies in BOTH states. On
+   purpose there is NO [data-state="collapsed"] selector here with the other side's value,
+   nor a more specific rule redeclaring padding: a pair of per-state values is exactly
+   what diverges again on the next upgrade. The logo stays put, it's the bar that shrinks.
+   `transform: none` comes along as a safety net, exactly like the rule
+   on lines 386-391 already does on the menu item's inner block, in case a Tailwind
+   upgrade goes back to compiling translate-x into the transform matrix.
+
+   DOESN'T BREAK THE GOLDEN RULE: the header's <a> isn't a popup and there's no Floating UI
+   on it; what's written here ZEROES a displacement from kumo instead of creating one
+   of our own.
+
+   THE SITE NAME LABEL NEXT TO IT DOESN'T PUSH THE LOGO, and isn't being touched
+   here. It doesn't even disappear when the bar collapses: line 320 pins
+   `grid-template-columns: 1fr` on the grid <span>, canceling out kumo's
+   `grid-cols-[1fr]` -> `grid-cols-[0fr]` collapse, because the header here is the
+   fixed toolbar's left corner (lines 271-279), in the spirit of wp-admin, not
+   a column row that shrinks. A prior decision, kept. Even if kumo's collapse is
+   ever wanted back, it wouldn't touch the logo: the label comes AFTER
+   the <img> in the flex order and the track closes from right to left.
+
+   IDEAL: merge these three declarations into the rule on line 299, which is their
+   natural home. Left for the consolidation round, alongside the other debts
+   already noted in R3.5, because touching the middle of the file now would shift more
+   than forty file-line pointers in this very sheet. */
+html[data-mode] :is(aside,nav).emdash-sidebar [data-sidebar="header"] a {
+  translate: none !important;
+  -webkit-transform: none !important;
+  transform: none !important;
+}
+
+
+/* ==========================================================================
+   [20] TWO FIXES WITH NO HOME IN THE BLOCKS ABOVE
+        (round 5, 2026-09-08)
+   ========================================================================== */
+
+/* [20a] THE SEARCH FIELD FILLS ITS OWN WRAPPER.
+
+   UPSTREAM BUG, measured in the fixture: EmDash wraps every panel search in
+   `<div class="relative flex-1 max-w-md">` with the icon at `absolute start-3`, but
+   kumo's `<Input>` does NOT carry `w-full` (inputVariants, input-f2ct7obgdzypjmp2.js: only
+   `h-9 gap-1.5 rounded-lg px-3`). The field ends up with the native <input>'s intrinsic width
+   while the wrapper still reserves `max-w-md`'s 448px. Measured on the Secoes page:
+   wrapper 448px, field 197px, meaning a 250px hole between the search and the
+   "Todas as origens" filter, which was the owner's complaint (it appeared floating loose in the middle of the row).
+
+   One rule fixes all NINE searches in the panel, which all share the same design (Secoes,
+   ContentPicker, MediaPicker, SectionPicker, Marketplace, Registry, ThemeMarketplace,
+   404): with the field filling the wrapper, the filter next to it sits flush against the container's own
+   16px gap, which is the requested "stuck to the section search" look.
+   SCOPE: `> input` direct child, so as not to reach a button or card that also uses
+   `relative ... flex-1` (MediaFolderCard). */
+html[data-mode] main div.relative[class*="flex-1"] > input {
+  width: 100% !important;
+}
+
+/* [20b] ANTI-CLS ON THE PANEL'S METRIC CARDS.
+
+   Measured in the fixture: loaded card 89px, loading card 68px. The 21px jump comes
+   entirely from the body (LayerCard.Primary), which holds the number at a 28.8px line height and
+   the skeleton at 8px. The header no longer jumps, because line ~760 pins min-height 36px
+   on it.
+
+   ANCHOR: `.text-3xl` is the class EmDash puts on the body in BOTH states (SummaryMetrics
+   passes `text-3xl font-semibold leading-none` on both the `loading` branch and the loaded one),
+   so the minimum height applies right from the first paint.
+   THE NUMBER: 1.2em of 24px = 28.8px line height, the same the `.text-3xl` on line ~795
+   defines, plus the body's 24px padding. If one of the two ever changes, change this one along with it. */
+html[data-mode] main .bg-kumo-elevated.ring-kumo-hairline > .ring-kumo-fill.text-3xl {
+  min-height: calc(1.2em + 24px);
+}
+
+/* [20c] CHECKABLE LISTS (taxonomies, bylines, create taxonomy): only the corner.
+
+   Measured in the admin bundle: `CategoryCheckboxTree`, `BylineFilter` and `CreateTaxonomyDialog`
+   draw each row as `rounded px-2 hover:bg-kumo-tint/50`, the same inset highlight with a
+   round corner as the other menus. Here ONLY the corner dies, not the inset: these three lists
+   live inside a popover and a dialog whose wrapper hasn't been measured yet in the logged-in DOM, and
+   zeroing a container's padding without measuring is the kind of guess that breaks silently. It's
+   noted as a debt: with the panel open, measure the wrapper and complete the edge-to-edge treatment.
+   ANCHORED by attribute, because the Tailwind class carries `/` and `:`. */
+html[data-mode] [class*="hover:bg-kumo-tint/50"][class*="rounded"] {
+  border-radius: 0 !important;
+}
+
+/* [20d] THE CREDITS BLOCK'S "+" BUTTON FITS INSIDE THE BAND (round 5.1).
+
+   Measured in the bundle: EmDash positions that trigger ABSOLUTE, `className="absolute end-14
+   top-2"`, counting on the section's original layout (with no header band). Our
+   skin turns the title into a 37px band, and a 36px button starting at 8px
+   overflows by 7px: that's why its focus ring appeared clipped, on top of the band's
+   border, and not aligned with the title.
+   NUMBERS: 37px band, 32px button, 2.5px left over on each side; `top: 2px` stays within
+   half-a-pixel rounding error and needs no transform (forbidden on an element dnd-kit drags).
+   The band's `padding-inline-end` goes from 40px (just the handle) to 92px (handle + button + slack)
+   ONLY on the section that has the button, so the title never runs under it. */
+html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
+  top: 2px !important;
+  width: 32px !important;
+  height: 32px !important;
+  min-height: 0 !important;
+}
+
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.flex:has(> h3),
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > h3,
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > h3 {
+  padding-inline-end: 92px !important;
+}
+
+
+/* ==========================================================================
+   [21] THE RIGHT PANEL'S HEADER BAND: TITLE ON THE LEFT, EVERYTHING ELSE ON
+        THE RIGHT, ALL THE SAME SIZE AND WITH THE SAME HOVER
+        (round 5.2, 2026-09-08, measured on the logged-in panel via CDP)
+   ========================================================================== */
+
+/* WHAT WAS MEASURED, in the editor's "Creditos" block (36.6px band, x from 1361 to 1728):
+     h3 "Creditos"                       x=1377   (16px from the border, correct)
+     button (i) "Why are bylines..."      x=1437.6  14x14, radius 2px  <- stuck to the title
+     button "+" (Popover.Trigger)         absolute end-14 top-2, 36x36  <- was overflowing
+     button handle [data-sortable-handle]  x=1694    28x28, radius 0
+   Three sibling buttons with related roles, three sizes, three positions and three different hovers.
+
+   THE TARGET: title on the left; (i), "+" and the handle flush right, 28x28, 4px between them,
+   6px from the border. The band's breathing-room math comes from that: 6 + 28 + 4 = 38px without the "+",
+   6 + 28 + 4 + 28 + 4 = 70px with it.
+   WHY `margin-inline-start: auto` on the (i): it's a flex child; the other two are
+   `absolute`, positioned by EmDash, so it's the only piece that needs to MOVE.
+   DEGRADATION: a browser without :has() only loses the extra breathing room; the buttons stay the same
+   size and with the same hover.
+
+   EVERY `div.flex:has(> h3)` IN THIS BLOCK KEEPS THE CLASS. The row it paints is the
+   Bylines header; the bare `div:has(> h3)` also matches the Taxonomias and Traducoes
+   roots, which hold the title AND the content, and `display: flex` there lays the panel
+   out in two columns. That regression shipped in 0.1.2 and is described in full in
+   block [10], next to the band rule. */
+
+/* SINGLE HEIGHT: the band is now 36px on every block, with content centered. Without this the
+   28px button was pushing the header itself (measured: the Creditos band went to 45px and the
+   handle, anchored at `top: 4px`, was 4px off center). The h3 INSIDE the flex band needs to
+   go back to being plain text: the height rule matches it too, and then the band would add up to 36 + 8. */
+html[data-mode] section[data-sorting] > div > h3,
+html[data-mode] section[data-sorting] > div > div > h3,
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+  display: flex !important;
+  align-items: center !important;
+  min-height: 36px !important;
+  padding-block: 4px !important;
+}
+
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
+  display: block !important;
+  min-height: 0 !important;
+  padding-block: 0 !important;
+}
+
+/* band's breathing room: 38px reserves the handle, 70px reserves handle + "+" */
+html[data-mode] section[data-sorting] > div > h3,
+html[data-mode] section[data-sorting] > div > div > h3,
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+  padding-inline-end: 38px !important;
+}
+
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > h3,
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > h3,
+html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.flex:has(> h3) {
+  padding-inline-end: 70px !important;
+}
+
+/* the help button goes to the end of the row */
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button {
+  margin-inline-start: auto !important;
+}
+
+/* the "+" stops overflowing: 28px centered in the band, flush to the left of the handle */
+html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
+  top: 4px !important;
+  inset-inline-end: 38px !important;
+}
+
+/* all three, same box and same hover */
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button,
+html[data-mode] section[data-sorting] .absolute.end-14.top-2,
+html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
+  display: grid !important;
+  place-items: center !important;
+  width: 28px !important;
+  height: 28px !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  border-radius: 3px !important;
+  background: transparent !important;
+  color: var(--wp-muted) !important;
+  -webkit-transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+  transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
+}
+
+html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button:hover,
+html[data-mode] section[data-sorting] .absolute.end-14.top-2:hover,
+html[data-mode] section[data-sorting="false"] > button[data-sortable-handle]:hover {
+  background: var(--wp-line-soft) !important;
+  color: var(--wp-text) !important;
+}
+
+
+/* ==========================================================================
+   [22] (EMPTY) The block that used to hide the legacy migration fields lived here.
+
+   On 2026-09-08, in the same session it was born, the five fields were REALLY DROPPED:
+   `category`, `tags`, `author`, `image` and `image_alt` on `posts`, and `image` on
+   `areas`. What was blocking the cleanup was the risk of publishing a historical revision after the
+   DROP ("no such column", content.ts:1931). Solved at the root, with a backup taken first:
+     UPDATE revisions SET data = json_remove(data, '$.category','$.tags','$.author',
+       '$.image','$.image_alt') WHERE collection IN ('posts','areas');   -- 9 rows
+   Zero revisions with a legacy key after that, so EmDash's field DELETE ran without
+   leaving an armed bomb behind. Do not resurrect this block: if one of these fields reappears in the
+   form, it's because it came back to the schema, and the fix belongs in the schema.
+   ========================================================================== */
+
+
+/* ==========================================================================
+   [23] EMDASH 1.1.0 SHAPES (0.2.3)
+
+   Measured in astro dev on a copy of a real site, EmDash 1.1.0, at 1440 and 390.
+   1.1.0 rebuilt several page headers, and four of them fell out of reach of [5] and [13]:
+
+     Secoes          main > div > header > div > [div > h1, button]
+     Menus, Creditos main > div > header > [div > h1, div > (a, button)]
+     Usuarios        main > div > div > [h1, button]
+     Tipos de conteudo  one more div around the whole page (main > div > div > row)
+
+   The fix for those lives in [5] and [13], as extra selectors on the rules that already
+   dress the header action, so they share one declaration block. What is left for here:
+
+   (a) THE PRIMARY VARIANT'S GRADIENT. Novo redirecionamento, New section and New byline
+       are kumo `primary`: a <span aria-hidden="true" class="absolute inset-0 ..."> paints
+       a blue gradient over the button, on top of the background [5] sets. Measured before:
+       h30, the WordPress border, but the face still blue with white text. The span is the
+       only aria-hidden child kumo gives a button, and the icon is an <svg>, so the
+       attribute is the anchor. Unlayered, so it beats the layered utilities without help.
+
+   (b) 390px. Below 640px the 1.1.0 header leaves its actions on the same line as the title:
+       Redirecionamentos overlaps the h1 with its button (837px2 measured), Categorias
+       pushes four buttons to x=493 inside a 390 viewport, Tipos de conteudo to 409. Only the
+       row's wrapping changes, never a size.
+
+   (c) EMPTY TABLE ON A PHONE. A table whose only row is a state cell (td[colspan], the
+       empty or loading message) keeps the min-width of its columns: on Esquema de creditos
+       at 390 the message ended at x=374 inside a 340px wrapper, cut on the right. With no
+       data row there is nothing to keep wide, so the table takes the wrapper's width.
+
+   (d) DASHBOARD METRIC NUMBER. [5] zeroes the card title's padding, but the number keeps
+       its own `px-3`: title at x=267, number at x=279. Anchored on data-testid.
+   ========================================================================== */
+
+/* (a) */
+html[data-mode] main h1 + div > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > div:has(> div > h1) > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > header > div:has(> div > h1) > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > header > div:has(> h1) + div > :is(a, button) > span[aria-hidden="true"],
+html[data-mode] main > div > div:has(> h1) > :is(a, button) > span[aria-hidden="true"] {
+  display: none;
+}
+
+/* (b) */
+@media (max-width: 640px) {
+  html[data-mode] main > div > header > div:has(> h1 + div > :is(a, button)) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  html[data-mode] main > div > header > div:has(> h1 + div > :is(a, button)) > * {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+
+  html[data-mode] main > div > div:has(> div > h1),
+  html[data-mode] main > div > div > div:has(> div > h1),
+  html[data-mode] main > div > div:has(> div > h1) > div:not(:has(h1)),
+  html[data-mode] main > div > div > div:has(> div > h1) > div:not(:has(h1)) {
+    flex-wrap: wrap;
+    row-gap: 8px;
+  }
+}
+
+/* (c) */
+@media (max-width: 640px) {
+  html[data-mode] main table:has(> tbody > tr > td[colspan]:only-child) {
+    min-width: 0;
+    width: 100%;
+    table-layout: fixed;
+  }
+
+  html[data-mode] main table:has(> tbody > tr > td[colspan]:only-child) th {
+    overflow-wrap: anywhere;
+  }
+}
+
+/* (d) */
+html[data-mode] main [data-testid="dashboard-metric-value"] {
+  padding-inline: 0;
+}
+
+/* ==========================================================================
+   [24] SIGN-IN CARD WITH A PASSWORD (0.3.0)
+
+   EmDash 1.1.0's sign-in card is one column: passkey (primary) with its help line, "Or continue
+   with", a grid holding one wrapper <div> per provider, and the email link as a GHOST button
+   (plain text on a card). With `emdash-admin-login-classic` installed the card flips: the password
+   button first and filled, the divider, then passkey and email link as outline buttons of the
+   same weight.
+
+   HOW THE THEME KNOWS THE PLUGIN IS THERE: it doesn't ask. The plugin's login button carries
+   `data-auth-provider="password"` and every rule hangs from a card that contains it (`:has()`).
+   No plugin, or a plugin version without the attribute, and the card stays EmDash's own.
+   Anchors are that attribute, Kumo's `data-kumo-component` and the card's structure, so
+   none of it counts toward scripts/surface.json.
+
+   MEASURED (EmDash 1.1.0, Kumo 2.6.0, astro dev):
+   - `order` moves the blocks, but Tailwind's `space-y-*` margins follow the DOM, so the card
+     gets an explicit rhythm: 24px password / divider / methods, 12px between the two outlines.
+     The passkey button also carries the `space-y-4` margin meant for the help line below it.
+   - `--kumo-button-emphasis-*` exist only ON the primary button, so the password button
+     rebuilds the primary look from `--wp-accent` with the same mixes (30% / 15% white, 10% black).
+   - The primary variant's text is `!text-white`, an important inside @layer utilities, which an
+     unlayered rule loses to: the passkey button gives its text back through `--color-white`.
+   - The passkey help line is hidden once the passkey is the second method.
+
+   KNOWN LIMIT: `order` is visual. Tab order stays EmDash's DOM order (passkey, password, link).
+   ========================================================================== */
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > * {
+  margin-block: 0;
+}
+
+/* the provider grid (password first) */
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:has(> div > [data-auth-provider="password"]) {
+  order: 1;
+  margin-block-end: 0.75rem;
+}
+
+/* the "Or continue with" divider: the only block with no button */
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:not(:has([data-kumo-component="Button"])) {
+  order: 2;
+  margin-block-end: 0.75rem;
+}
+
+/* the passkey block, now an alternative */
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:has(> [data-kumo-component="Button"]) {
+  order: 3;
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:has(> [data-kumo-component="Button"]) > p {
+  display: none;
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:has(> [data-kumo-component="Button"]) > [data-kumo-component="Button"] {
+  margin-block: 0;
+  background-color: transparent;
+  --color-white: var(--text-color-kumo-default);
+  --tw-ring-color: var(--color-kumo-line);
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:has(> [data-kumo-component="Button"]) > [data-kumo-component="Button"]:hover {
+  --tw-ring-color: color-mix(in oklab, var(--color-kumo-focus) 25%, transparent);
+  background-color: var(--color-kumo-tint); /* the grey hover the email link already has */
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div:has(> [data-kumo-component="Button"]) > [data-kumo-component="Button"] > span[aria-hidden="true"] {
+  display: none;
+}
+
+/* the email link: ghost becomes outline, same ring and shadow as the outline variant */
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > [data-kumo-component="Button"] {
+  order: 4;
+  box-shadow: 0 0 0 1px var(--color-kumo-line), 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > [data-kumo-component="Button"]:hover {
+  box-shadow: 0 0 0 1px color-mix(in oklab, var(--color-kumo-focus) 25%, transparent), 0 1px 2px 0 rgb(0 0 0 / 0.05);
+}
+
+/* the password button: the primary look, rebuilt (see MEASURED) */
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div > div > [data-auth-provider="password"] {
+  background-color: color-mix(in oklch, var(--wp-accent), white 30%);
+  background-image: linear-gradient(color-mix(in oklch, var(--wp-accent), white 15%), var(--wp-accent));
+  color: var(--color-white);
+  --tw-ring-color: color-mix(in oklch, var(--wp-accent), black 10%);
+}
+
+html[data-mode] div:has(> div > div > [data-auth-provider="password"]) > div > div > [data-auth-provider="password"]:hover {
+  background-image: none;
+  color: var(--color-white);
+}
