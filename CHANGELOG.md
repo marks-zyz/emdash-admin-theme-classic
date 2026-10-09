@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.3
+
+- Accepts EmDash 1.2.0: the peer range is now `>=0.36.0 <1.3.0`. No CSS change. The 18 tests, the type check and the surface count pass against `@emdash-cms/admin` 1.2.0, and 1.2.0 ships the same Kumo (2.6.0) as 1.1.0, so the sidebar and every anchor the stylesheet uses are unchanged.
+
 ## 0.3.2
 
 - Docs only: the README and this changelog name the login plugin `emdash-admin-login-classic` and link to its repository (the 0.3.1 page on npm still used the old name and a dead link). No CSS change.

@@ -165,6 +165,7 @@ consequence you are accepting is that the theme toggle in the panel header stops
 | 0.2.2 | emdash 0.36.0 to 1.1.0, `@emdash-cms/admin` same (fixtures run against 1.1.0) |
 | 0.2.3 | emdash 0.36.0 to 1.1.0; the new header and type-scale rules were measured on 1.1.0 |
 | 0.3.0, 0.3.1 | emdash 0.36.0 to 1.1.0; the sign-in card was measured on 1.1.0 |
+| 0.3.3 | emdash 0.36.0 to 1.2.0; tests and the surface count run against `@emdash-cms/admin` 1.2.0, which ships the same Kumo (2.6.0) as 1.1.0 |
 
 On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`,
 `.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`,
