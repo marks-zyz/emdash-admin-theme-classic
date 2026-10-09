@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.2
+
+- Docs only: the README and this changelog name the login plugin `emdash-admin-login-classic` and link to its repository (the 0.3.1 page on npm still used the old name and a dead link). No CSS change.
+
 ## 0.3.1
 
 - Sign-in card with the password plugin: the passkey button gets the same grey hover as the email link.
