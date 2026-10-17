@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.4
+
+- Accepts EmDash 1.3.0: the peer range is now `>=0.36.0 <1.4.0`. No CSS change. The 18 tests, the type check and the surface count (109 generated, 457 `!important`, the same as 0.3.0) pass against `@emdash-cms/admin` 1.3.0, which ships the same Kumo (2.6.0) as 1.1.0. The screens that 1.2.0 and 1.3.0 redesigned were also opened in Chromium with the skin on, at 1440 and 390 pixels wide: the content list with its pinned pagination footer, the trash, the editor as a page (single top bar, icon-only on a phone), the Revisions panel with a version open in place, the media library, settings, My access, users and the dashboard. No horizontal scroll, no console error, and the header bands and cards kept their look.
+
 ## 0.3.3
 
 - Accepts EmDash 1.2.0: the peer range is now `>=0.36.0 <1.3.0`. No CSS change. The 18 tests, the type check and the surface count pass against `@emdash-cms/admin` 1.2.0, and 1.2.0 ships the same Kumo (2.6.0) as 1.1.0, so the sidebar and every anchor the stylesheet uses are unchanged.
