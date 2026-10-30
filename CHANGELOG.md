@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.3.5
+
+- Accepts EmDash 1.4.0: the peer range is now `>=0.36.0 <1.5.0`. No CSS change. The 18 tests, the type check and the surface count (109 generated, 457 `!important`, the same as 0.3.0) pass against `@emdash-cms/admin` 1.4.0, which still ships Kumo 2.6.0. On a fresh 1.4.0 site with the skin on, the dashboard, the content list, the editor, the media library, settings, users, redirects, My access and the sign-in screen were opened in Chromium at 1440 and 390 pixels wide: the stylesheet loaded on each, with no horizontal scroll and no console error.
+
 ## 0.3.4
 
 - Accepts EmDash 1.3.0: the peer range is now `>=0.36.0 <1.4.0`. No CSS change. The 18 tests, the type check and the surface count (109 generated, 457 `!important`, the same as 0.3.0) pass against `@emdash-cms/admin` 1.3.0, which ships the same Kumo (2.6.0) as 1.1.0. The screens that 1.2.0 and 1.3.0 redesigned were also opened in Chromium with the skin on, at 1440 and 390 pixels wide: the content list with its pinned pagination footer, the trash, the editor as a page (single top bar, icon-only on a phone), the Revisions panel with a version open in place, the media library, settings, My access, users and the dashboard. No horizontal scroll, no console error, and the header bands and cards kept their look.
