@@ -194,3 +194,94 @@ test("os painieis do editor mantem o titulo em banda, com o conteudo abaixo", as
   assert.equal(mutant.panels.taxonomies.wrapDisplay, "flex", "a mutacao precisa reproduzir o bug medido");
   assert.throws(() => validate(mutant), /ABAIXO do titulo|banda do titulo/, "a mutacao tem que reprovar a fixture");
 });
+
+// ---------------------------------------------------------------------------
+// @emdash-cms/admin 1.5.0 (ContentSettingsSections.tsx): the section lost data-sorting and
+// data-disclosure (the drag-to-reorder sections are gone) and carries `data-settings-section=<id>`.
+// Markup copied from the 1.5.0 bundle, measured on a live panel (2026-11-16).
+const section15 = (id, inner) =>
+  `<section data-testid="${id}" data-settings-section="${id}" class="relative border-t first:border-t-0 bg-kumo-base">${inner}</section>`;
+
+const PANELS_15 =
+  section15("publish", `<div class="p-4"><h3 data-h3 class="mb-4 font-semibold">Publicar</h3><div data-content class="space-y-4"><input class="w-full" value="slug"></div></div>`) +
+  section15(
+    "bylines",
+    `<div data-emdash-outside="bylines" class="p-4">
+      <div data-wrap class="mb-4 flex items-center gap-1.5 pe-10"><h3 data-h3 class="font-semibold">Cr&eacute;ditos</h3><button type="button" class="size-4">i</button></div>
+      <div data-content><button type="button" data-kumo-component="Popover" data-kumo-part="trigger" aria-expanded="false" data-plus class="absolute end-4 top-2 size-9">+</button>
+      <div class="space-y-2"><div class="rounded-lg border p-3">Ra&iacute;ssa</div></div></div>
+    </div>`,
+  ) +
+  section15(
+    "taxonomies",
+    `<div data-emdash-outside="terms"><div data-wrap class="grid gap-3 p-4"><h3 data-h3 class="font-semibold">Taxonomias</h3><div data-content class="grid gap-4">Direitos</div></div></div>`,
+  ) +
+  section15(
+    "outline",
+    `<div class="p-4"><div data-open><button type="button" data-collapsible data-kumo-component="Collapsible" data-kumo-part="trigger" aria-expanded="true" class="group flex w-max shrink-0 items-center"><span class="text-base font-medium">Contorno</span></button><div data-content>Nenhum cabe&ccedil;alho</div></div></div>`,
+  );
+
+const html15 = (skinRoute) => `<!doctype html>
+<html data-theme="classic" data-mode="light"><head><meta charset="utf-8">
+<link rel="stylesheet" href="/admin.css"><link rel="stylesheet" href="${skinRoute}"></head>
+<body><aside data-side="right" style="width:368px"><div data-sidebar="content-container"><div class="overflow-y-auto"><div>${PANELS_15}</div></div></div></aside></body></html>`;
+
+// Anti-placebo: dropping the 1.5.0 anchor from the skin must make the fixture fail.
+const MUTANT_15 = SKIN_CSS.replaceAll("section[data-settings-section]", "section[data-nope]");
+assert.notEqual(MUTANT_15, SKIN_CSS, "the 1.5.0 mutation must reach the data-settings-section anchor");
+
+async function measure15(page, skinCss) {
+  await page.route("**/*", (route) => {
+    const url = new URL(route.request().url());
+    if (url.pathname === "/admin.css") return route.fulfill({ contentType: "text/css", body: ADMIN_CSS });
+    if (url.pathname === "/skin.css") return route.fulfill({ contentType: "text/css", body: skinCss });
+    return route.fulfill({ contentType: "text/html", body: html15("/skin.css") });
+  });
+  await page.goto("http://fixture.test/", { waitUntil: "networkidle" });
+  return page.evaluate(() => {
+    const box = (el) => {
+      if (!el) return null;
+      const r = el.getBoundingClientRect();
+      return { x: r.x, width: r.width, height: r.height, right: r.right, bottom: r.bottom, y: r.y };
+    };
+    const out = {};
+    for (const el of document.querySelectorAll("section[data-testid]")) {
+      out[el.dataset.testid] = {
+        section: box(el),
+        h3: box(el.querySelector("[data-h3]")),
+        wrap: box(el.querySelector("[data-wrap]")),
+        plus: box(el.querySelector("[data-plus]")),
+        collapsible: box(el.querySelector("[data-collapsible]")),
+        content: box(el.querySelector("[data-content]")),
+      };
+    }
+    return out;
+  });
+}
+
+function validate15(p) {
+  for (const id of ["publish", "taxonomies"]) {
+    const { section: sec, h3, content } = p[id];
+    assert.ok(Math.abs(h3.width - sec.width) <= 1, `1.5.0 ${id}: the title band spans the section (${h3.width} of ${sec.width})`);
+    assert.ok(Math.abs(h3.height - 36) <= 0.5, `1.5.0 ${id}: 36px band, got ${h3.height}px`);
+    assert.ok(content.y >= h3.bottom - 0.5, `1.5.0 ${id}: content starts BELOW the band`);
+  }
+  const b = p.bylines;
+  assert.ok(Math.abs(b.wrap.width - b.section.width) <= 1, `1.5.0 bylines: the row is the band (${b.wrap.width} of ${b.section.width})`);
+  assert.ok(b.plus.width === 28 && b.plus.height === 28, `1.5.0 bylines: the "+" is 28x28, got ${b.plus.width}x${b.plus.height}`);
+  assert.ok(b.plus.bottom <= b.wrap.bottom && b.plus.y >= b.wrap.y, `1.5.0 bylines: the "+" sits inside the band`);
+  assert.ok(b.section.right - b.plus.right <= 8, `1.5.0 bylines: the "+" is flush right (${b.section.right - b.plus.right}px from the edge)`);
+  const o = p.outline;
+  assert.ok(Math.abs(o.collapsible.width - o.section.width) <= 1, `1.5.0 outline: the collapsible header is a full-width band (${o.collapsible.width} of ${o.section.width})`);
+  assert.ok(o.collapsible.height >= 36 && o.collapsible.height <= 37.5, `1.5.0 outline: band between 36 and 37px, got ${o.collapsible.height}px`);
+}
+
+test("1.5.0 sections (data-settings-section) keep the title band, the byline + and the collapsible header", async (t) => {
+  const browser = await chromium.launch({ headless: true });
+  t.after(() => browser.close());
+  const page = await browser.newPage({ viewport: { width: 1280, height: 1400 } });
+  validate15(await measure15(page, SKIN_CSS));
+  const mutantPage = await browser.newPage({ viewport: { width: 1280, height: 1400 } });
+  const mutant = await measure15(mutantPage, MUTANT_15);
+  assert.throws(() => validate15(mutant), /band|"\+"|collapsible/, "dropping the data-settings-section anchor must fail the fixture");
+});

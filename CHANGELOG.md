@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.6
+
+- Accepts EmDash 1.5.0: the peer range is now `>=0.36.0 <1.6.0`. `@emdash-cms/admin` 1.5.0 ships Kumo 2.15.0 (1.4.0 had 2.6.0). The 19 tests (one new), the type check and the surface count (109 generated, 457 `!important`, unchanged) pass against it. On a fresh 1.5.0 site with the skin on, the dashboard, the content list, the editor, the media library, taxonomies, menus, users, settings, plugins and the sign-in screen were opened in Chromium at 1440 and 390 pixels wide: the stylesheet loaded on each, with no horizontal scroll and no console error.
+- CSS fix: 1.5.0 removed the drag-to-reorder sections of the editor's right panel, so the sections no longer carry `data-sorting` or `data-disclosure` (now `<section data-settings-section="<id>">`) and the title bands (Publish, URL, Credits, Taxonomies, SEO, Outline, Revisions) fell back to plain text. The band, header-button and collapsible rules now match both markups (`:is(section[data-sorting], section[data-settings-section])`; the Outline and Revisions headers by `data-kumo-component="Collapsible"`), and the Credits "+" button, now `absolute end-4`, is placed by attribute. Older EmDash versions keep their anchors. New test fixture with the 1.5.0 markup, with a mutant that drops the anchor.
+
 ## 0.3.5
 
 - Accepts EmDash 1.4.0: the peer range is now `>=0.36.0 <1.5.0`. No CSS change. The 18 tests, the type check and the surface count (109 generated, 457 `!important`, the same as 0.3.0) pass against `@emdash-cms/admin` 1.4.0, which still ships Kumo 2.6.0. On a fresh 1.4.0 site with the skin on, the dashboard, the content list, the editor, the media library, settings, users, redirects, My access and the sign-in screen were opened in Chromium at 1440 and 390 pixels wide: the stylesheet loaded on each, with no horizontal scroll and no console error.

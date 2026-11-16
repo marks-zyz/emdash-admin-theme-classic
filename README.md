@@ -168,6 +168,7 @@ consequence you are accepting is that the theme toggle in the panel header stops
 | 0.3.3 | emdash 0.36.0 to 1.2.0; tests and the surface count run against `@emdash-cms/admin` 1.2.0, which ships the same Kumo (2.6.0) as 1.1.0 |
 | 0.3.4 | emdash 0.36.0 to 1.3.0; tests and the surface count run against `@emdash-cms/admin` 1.3.0 (same Kumo 2.6.0), and the redesigned list, editor, revisions and media screens were opened with the skin on, at 1440 and 390 pixels |
 | 0.3.5 | emdash 0.36.0 to 1.4.0; tests and the surface count run against `@emdash-cms/admin` 1.4.0 (same Kumo 2.6.0), and nine admin screens plus the sign-in screen were opened with the skin on, at 1440 and 390 pixels |
+| 0.3.6 | emdash 0.36.0 to 1.5.0; tests and the surface count run against `@emdash-cms/admin` 1.5.0 (Kumo 2.15.0, up from 2.6.0). 1.5.0 dropped `data-sorting`/`data-disclosure` from the editor's right-panel sections, so the title bands re-anchor on `data-settings-section`; nine admin screens plus the sign-in screen were opened with the skin on, at 1440 and 390 pixels |
 
 On 0.37 every anchor this stylesheet uses is still emitted by the admin bundle (`data-sidebar`,
 `.emdash-sidebar`, `.bg-kumo-elevated`, `.ring-kumo-hairline`, `data-sorting`,

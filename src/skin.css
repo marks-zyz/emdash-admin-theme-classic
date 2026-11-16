@@ -1335,8 +1335,8 @@ html[data-mode] [data-base-ui-portal] > [role="presentation"]:is([data-open], [d
 /* round 5 (2026-09-08): the gray gap is GONE. The owner asked for the end of the floating
    metabox look: the sections become flush bands, separated only by a hairline, and with no gap
    there's no gray screen to paint. Background goes back to being a surface. */
-html[data-mode] :is(aside, nav)[data-side="right"] div:has(> section[data-sorting]),
-html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto:has(section[data-sorting]) {
+html[data-mode] :is(aside, nav)[data-side="right"] div:has(> :is(section[data-sorting], section[data-settings-section])),
+html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto:has(:is(section[data-sorting], section[data-settings-section])) {
   background: var(--wp-surface) !important;
 }
 
@@ -1359,7 +1359,7 @@ html[data-mode] :is(aside, nav)[data-side="right"] div.overflow-y-auto::-webkit-
 }
 
 /* the box */
-html[data-mode] section[data-sorting][data-disclosure] {
+html[data-mode] :is(section[data-sorting][data-disclosure], section[data-settings-section]) {
   /* NOT OPTIONAL: React sets `inline-size: 100%` as an INLINE style. With
      the 12px side margin that gives 100% + 24px inside a parent that is
      overflow-x-hidden: it doesn't become a scrollbar (the visual gate would slip past unnoticed), it becomes a
@@ -1382,7 +1382,7 @@ html[data-mode] section[data-sorting][data-disclosure] {
    HiddenText/LiveRegion pair as a sibling of the sections, with no portal. Today it comes out
    AFTER, so `:first-child` would work; `:first-of-type` stays correct if
    it ever comes out before. */
-html[data-mode] section[data-sorting][data-disclosure]:first-of-type {
+html[data-mode] :is(section[data-sorting][data-disclosure], section[data-settings-section]):first-of-type {
   margin-top: 0 !important;
   border-top: 0 !important;   /* the action bar above already closes with its own hairline */
 }
@@ -1390,8 +1390,8 @@ html[data-mode] section[data-sorting][data-disclosure]:first-of-type {
 /* header band: the title is a loose <h3> (Publicar, SEO, Taxonomias,
    Propriedade, Traducoes, plugin panels). Two levels because the
    depth changes from block to block (see note 2 above). */
-html[data-mode] section[data-sorting] > div > h3,
-html[data-mode] section[data-sorting] > div > div > h3 {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > h3,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div > h3 {
   display: block;
   margin: -16px -16px 16px !important;
   padding-block: 8px;
@@ -1424,7 +1424,7 @@ html[data-mode] section[data-sorting] > div > div > h3 {
    The 0.1.2 check ran on a running panel that had no taxonomy and no translation on
    screen, so the extra match count was zero there. test/panel-headers.test.mjs now
    holds the four panels, and its mutant is exactly this removal. */
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) {
   margin: -16px -16px 16px !important;
   padding-block: 8px !important;
   padding-inline: 16px 40px !important;   /* round 5: same ruler as the loose h3 */
@@ -1432,7 +1432,7 @@ html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
   background: var(--wp-button-bg);
 }
 
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) > h3 {
   margin: 0 !important;
   padding: 0 !important;
   border: 0 !important;
@@ -1442,7 +1442,7 @@ html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
 /* collapsible header (Sumario, Revisoes) = Collapsible.Trigger. EmDash sets
    `width: calc(100% - 1.5rem)` and `inset-inline-start: -0.75rem` INLINE: only
    !important wins. */
-html[data-mode] section[data-disclosure="true"] button[aria-expanded] {
+html[data-mode] :is(section[data-disclosure="true"] button[aria-expanded], section[data-settings-section] > div > div > button[data-kumo-component="Collapsible"]) {
   width: calc(100% + 32px) !important;
   inset-inline-start: 0 !important;
   margin: -16px -16px 12px !important;
@@ -1460,13 +1460,13 @@ html[data-mode] section[data-disclosure="true"] button[aria-expanded] {
    element's own class. With `--text-base: 13px` (line 123) and
    `--font-weight-medium: 500`, "Sumario" and "Revisoes" would come out 13px/500
    sitting next to seven 14px/400 titles, in the same column. */
-html[data-mode] section[data-disclosure="true"] button[aria-expanded] span {
+html[data-mode] :is(section[data-disclosure="true"] button[aria-expanded], section[data-settings-section] > div > div > button[data-kumo-component="Collapsible"]) span {
   font-size: 14px !important;
   font-weight: 400 !important;
   line-height: 1.4 !important;
 }
 
-html[data-mode] section[data-disclosure="true"] button[aria-expanded]:hover {
+html[data-mode] :is(section[data-disclosure="true"] button[aria-expanded], section[data-settings-section] > div > div > button[data-kumo-component="Collapsible"]):hover {
   background: var(--wp-accent-tint) !important;
 }
 
@@ -2791,7 +2791,7 @@ html[data-mode] main div.border.rounded-lg:has(> .border-b.bg-kumo-tint\/50) {
    No !important on purpose: a normal, unlayered rule beats a normal one in a layer, and the
    only `transition` with !important in styles.css lives in `.transition-none!`,
    `.t-text-swap` and `[data-sidebar-popup]`, none of which this button carries. */
-html[data-mode] section[data-disclosure="true"] button[aria-expanded] {
+html[data-mode] :is(section[data-disclosure="true"] button[aria-expanded], section[data-settings-section] > div > div > button[data-kumo-component="Collapsible"]) {
   -webkit-transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease;
   transition: background-color var(--wp-fast) ease, border-color var(--wp-fast) ease;
 }
@@ -3005,25 +3005,25 @@ html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div > 
    28px button was pushing the header itself (measured: the Creditos band went to 45px and the
    handle, anchored at `top: 4px`, was 4px off center). The h3 INSIDE the flex band needs to
    go back to being plain text: the height rule matches it too, and then the band would add up to 36 + 8. */
-html[data-mode] section[data-sorting] > div > h3,
-html[data-mode] section[data-sorting] > div > div > h3,
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > h3,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div > h3,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) {
   display: flex !important;
   align-items: center !important;
   min-height: 36px !important;
   padding-block: 4px !important;
 }
 
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > h3 {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) > h3 {
   display: block !important;
   min-height: 0 !important;
   padding-block: 0 !important;
 }
 
 /* band's breathing room: 38px reserves the handle, 70px reserves handle + "+" */
-html[data-mode] section[data-sorting] > div > h3,
-html[data-mode] section[data-sorting] > div > div > h3,
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > h3,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div > h3,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) {
   padding-inline-end: 38px !important;
 }
 
@@ -3034,7 +3034,7 @@ html[data-mode] section[data-sorting]:has(.absolute.end-14.top-2) > div > div.fl
 }
 
 /* the help button goes to the end of the row */
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button {
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) > button {
   margin-inline-start: auto !important;
 }
 
@@ -3044,9 +3044,18 @@ html[data-mode] section[data-sorting] .absolute.end-14.top-2 {
   inset-inline-end: 38px !important;
 }
 
+/* EmDash 1.5.0 moved the "+" to `absolute end-4 top-2` and dropped the section drag handle, so
+   nothing sits to its right: 6px from the border, the band's 38px right padding already clears it.
+   Anchored by attribute (named Kumo component) so no Tailwind class enters the bet. */
+html[data-mode] section[data-settings-section="bylines"] button[data-kumo-component="Popover"][data-kumo-part="trigger"] {
+  top: 4px;                       /* an unlayered rule already beats the layered `top-2` / `end-4` */
+  inset-inline-end: 6px;
+}
+
 /* all three, same box and same hover */
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) > button,
 html[data-mode] section[data-sorting] .absolute.end-14.top-2,
+html[data-mode] section[data-settings-section="bylines"] button[data-kumo-component="Popover"][data-kumo-part="trigger"],
 html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
   display: grid !important;
   place-items: center !important;
@@ -3061,8 +3070,9 @@ html[data-mode] section[data-sorting="false"] > button[data-sortable-handle] {
   transition: background-color var(--wp-fast) ease, color var(--wp-fast) ease;
 }
 
-html[data-mode] section[data-sorting] > div > div.flex:has(> h3) > button:hover,
+html[data-mode] :is(section[data-sorting], section[data-settings-section]) > div > div.flex:has(> h3) > button:hover,
 html[data-mode] section[data-sorting] .absolute.end-14.top-2:hover,
+html[data-mode] section[data-settings-section="bylines"] button[data-kumo-component="Popover"][data-kumo-part="trigger"]:hover,
 html[data-mode] section[data-sorting="false"] > button[data-sortable-handle]:hover {
   background: var(--wp-line-soft) !important;
   color: var(--wp-text) !important;
